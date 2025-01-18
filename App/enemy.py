@@ -3,7 +3,7 @@ class MOVEMENT(Enum):
     VERTICAL = 2
 
 
-class Enemy:
+class Enemy(Entity):
     def __init__(
         self,
         x,
