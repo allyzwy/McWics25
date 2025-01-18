@@ -58,7 +58,7 @@ class Player(Entity):
     def check_collision(self, platforms):
         self.on_ground = False
         for platform in platforms:
-            if self.rect.colliderect(platform) and self.velocity_y > 0:
+            if self.rect.colliderect(platform.rect) and self.velocity_y >= 0:
                 self.rect.bottom = platform.rect.top
                 self.velocity_y = 0
                 self.on_ground = True

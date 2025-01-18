@@ -1,10 +1,12 @@
 import pygame
-from entity import Entity
+from Entity import Entity
 from enum import Enum
+
 
 class MOVEMENT(Enum):
     HORIZONTAL = 1
     VERTICAL = 2
+
 
 class Enemy(Entity):
     def __init__(
@@ -35,7 +37,6 @@ class Enemy(Entity):
         self.bounds = bounds
         self.direction = 1  # 1 for forward/right/down, -1 for backward/left/up
 
-
     def update(self):
         """Update the enemy's position based on its trajectory."""
         if self.trajectory_type == MOVEMENT.HORIZONTAL:
@@ -49,7 +50,6 @@ class Enemy(Entity):
             if self.bounds:
                 if self.rect.top < self.bounds[0] or self.rect.bottom > self.bounds[1]:
                     self.direction *= -1  # Reverse direction
-
 
     def check_collision(self, player):
         """
