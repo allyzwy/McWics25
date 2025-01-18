@@ -7,7 +7,6 @@ from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, MOVEMENT
 
-
 PLAYER_IMAGE_PATH = os.path.join(".", "App", "assets", "player", "static.png")
 
 
@@ -20,14 +19,23 @@ class Game:
         self.world_width = 2000  # The width of the game world
         self.world_height = 600  # The height of the game world
 
-        self.player = Player(100, 500, 100, 100, self.world_width, self.world_height)
+        self.camera = Camera(800, 600, self.world_width, self.world_height)
+
+        self.player = Player(
+            100,
+            500,
+            100,
+            100,
+            self.world_width,
+            self.world_height,
+            image_path=PLAYER_IMAGE_PATH,
+        )
         self.platforms = [
             Platform(0, 550, 2000, 50),  # Ground platform
             Platform(300, 400, 200, 20),
             Platform(600, 300, 200, 20),
             Platform(1200, 450, 300, 20),
         ]
-        self.camera = Camera(800, 600, self.world_width, self.world_height)
         self.enemies = [
             Enemy(400, 500, 50, 50, MOVEMENT.HORIZONTAL, speed=3, bounds=(400, 800)),
             Enemy(1000, 450, 50, 50, MOVEMENT.VERTICAL, speed=2, bounds=(400, 500)),
