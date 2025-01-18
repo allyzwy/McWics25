@@ -1,4 +1,5 @@
 from Entity import Entity
+import pygame
 
 
 class Lava(Entity):
@@ -7,8 +8,40 @@ class Lava(Entity):
     If a player collides with the lava, report collision.
     """
 
-    def __init__(): ...
+    def __init__(self, x, y, width, height):
+        """
+        Initialize the Lava object.
 
-    def draw(): ...
+        Args:
+            x (int): X-coordinate of the lava.
+            y (int): Y-coordinate of the lava.
+            width (int): Width of the lava.
+            height (int): Height of the lava.
+        """
+        super().__init__(x, y, width, height)
 
-    def check_collision(): ...
+    def draw(self, screen, camera):
+        """
+        Draw the lava on the screen.
+
+        Args:
+            screen (pygame.Surface): The game screen.
+            camera (Camera): The camera object for world-to-screen translation.
+        """
+        screen_rect = camera.apply(self)
+        pygame.draw.rect(screen, (255, 0, 0), screen_rect)  # Draw red lava
+
+    def check_collision(self, player):
+        """
+        Check if the player collides with the lava.
+
+        Args:
+            player (Player): The player object.
+
+        Returns:
+            bool: True if collision occurs, False otherwise.
+        """
+        if self.rect.colliderect(player.rect):
+            print("Player collided with lava!")  # Replace with action logic
+            return True
+        return False

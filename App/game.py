@@ -6,6 +6,7 @@ from Player import Player
 from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, MOVEMENT
+from Lava import Lava
 
 PLAYER_IMAGE_PATH = os.path.join(".", "App", "assets", "player", "static.png")
 
@@ -39,6 +40,9 @@ class Game:
         self.enemies = [
             Enemy(400, 500, 50, 50, MOVEMENT.HORIZONTAL, speed=3, bounds=(400, 800)),
             Enemy(1000, 450, 50, 50, MOVEMENT.VERTICAL, speed=2, bounds=(400, 500)),
+        ]
+        self.lava_pools = [
+            Lava(820, 540, 120, 10),  # Example lava pool
         ]
 
     def start(self):
@@ -74,6 +78,12 @@ class Game:
                 pygame.draw.rect(
                     self.screen, (255, 165, 0), self.camera.apply(enemy)
                 )  # Orange color
+
+            # Draw lava 
+            for lava in self.lava_pools:
+                if lava.check_collision(self.player):
+                    print("Player fell into lava!")  # Replace with appropriate game mechanics
+                lava.draw(self.screen, self.camera)
 
             pygame.display.flip()
             self.clock.tick(60)
