@@ -1,13 +1,9 @@
-import os
-
 import pygame
 
 from Player import Player
 from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, MOVEMENT
-
-PLAYER_IMAGE_PATH = os.path.join(".", "App", "assets", "player", "static.png")
 
 
 class Game:
@@ -24,11 +20,10 @@ class Game:
         self.player = Player(
             100,
             500,
-            100,
-            100,
+            50,
+            110,
             self.world_width,
             self.world_height,
-            image_path=PLAYER_IMAGE_PATH,
         )
         self.platforms = [
             Platform(0, 550, 2000, 50),  # Ground platform
@@ -50,6 +45,7 @@ class Game:
 
             # Update game objects
             self.player.move()
+            self.player.update_animation()
             self.player.apply_gravity()
             self.player.check_collision(self.platforms)
 
