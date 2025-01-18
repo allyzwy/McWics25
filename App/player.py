@@ -25,6 +25,6 @@ class Player:
         self.on_ground = False
         for platform in platforms:
             if self.rect.colliderect(platform) and self.velocity_y > 0:
-                self.rect.bottom = platform.top
+                self.rect.bottom = platform.rect.top
                 self.velocity_y = 0
                 self.on_ground = True
