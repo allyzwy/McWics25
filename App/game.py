@@ -2,6 +2,7 @@ import pygame
 from player import Player
 from camera import Camera
 from entity import Entity
+from enemy import Enemy, MOVEMENT
 
 
 class Game:
@@ -23,6 +24,11 @@ class Game:
             Entity(1200, 450, 300, 20),
         ]
         self.camera = Camera(800, 600, self.world_width, self.world_height)
+        self.enemies = [
+            Enemy(400, 500, 50, 50, MOVEMENT.HORIZONTAL, speed=3, bounds=(400, 800)),
+            Enemy(1000, 450, 50, 50, MOVEMENT.VERTICAL, speed=2, bounds=(400, 500)),
+        ]
+
 
     def start(self):
         running = True
@@ -35,6 +41,12 @@ class Game:
             self.player.move()
             self.player.apply_gravity()
             self.player.check_collision(self.platforms)
+
+            # Update enemies
+            for enemy in self.enemies:
+                enemy.update()
+                if enemy.check_collision(self.player):
+                    print("Player hit by an enemy!")  # Replace with actual action logic
 
             # Update the camera
             self.camera.update(self.player)
@@ -49,6 +61,10 @@ class Game:
 
             # Draw the player
             pygame.draw.rect(self.screen, (255, 0, 0), self.camera.apply(self.player))
+
+            # Draw the enemy
+            for enemy in self.enemies:
+                pygame.draw.rect(self.screen, (255, 165, 0), self.camera.apply(enemy))  # Orange color
 
             pygame.display.flip()
             self.clock.tick(60)
