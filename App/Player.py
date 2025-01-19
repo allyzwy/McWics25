@@ -128,10 +128,10 @@ class Player(Entity):
             # Reset horizontal velocity each frame (unless you want momentum)
             self.velocity_x = 0
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 self.velocity_x = -5
                 self.direction = PlayerDirection.LEFT
-            elif keys[pygame.K_RIGHT]:
+            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 self.velocity_x = 5
                 self.direction = PlayerDirection.RIGHT
 
@@ -210,8 +210,7 @@ class Player(Entity):
             self.direction == PlayerDirection.LEFT
             and self.current_state == PlayerState.HIT
         ):
-            print("here")
-            current_frame = pygame.transform.flip(current_frame, True, False) #type: ignore
+            current_frame = pygame.transform.flip(current_frame, False, False) #type: ignore
 
         # Flip if facing LEFT
         elif self.direction == PlayerDirection.LEFT:

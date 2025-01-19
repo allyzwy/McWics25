@@ -1,13 +1,11 @@
-from codecs import latin_1_decode
 import pygame
-from BounceEffect import BounceLeft
+from Lava import Lava
+from Spikes import Spikes
 from Player import Player
 from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, EnemyMovement
-from Lava import Lava
 from Coin import Coin
-from Spikes import Spikes
 
 
 class Game:
@@ -18,7 +16,7 @@ class Game:
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
 
-        self.world_width = 2000  # The width of the game world
+        self.world_width = 6000  # The width of the game world
         self.world_height = 600  # The height of the game world
 
         self.camera = Camera(800, 600, self.world_width, self.world_height)
@@ -33,35 +31,36 @@ class Game:
         )
 
         self.platforms = [
-            Platform(0, 550, 2000, 50),  # Ground platform
-            # Platform(300, 400, 200, 20),
-            Platform(500, 500, 40, 150),
-            Platform(600, 400, 200, 50),
-            Platform(700, 300, 200, 100),
-            Platform(1200, 450, 300, 20),
+            Platform(0, 550, 1900, 50),  # Ground platform
+            Platform(900, 500, 50, 50),
+            Platform(950, 500, 50, 50),
+            Platform(950, 450, 50, 50),
+            Platform(1000, 500, 50, 50),
+            Platform(1000, 450, 50, 50),
+            Platform(1000, 400, 50, 50),
+            Platform(1300, 500, 50, 50),
+            Platform(1500, 500, 50, 50),
+            Platform(2000, 500, 5000, 100),  # Ground platform
         ]
         self.enemies = [
             Enemy(
-                400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=3, bounds=(400, 800)
+                400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=2, bounds=(300, 600)
             ),
             # Enemy(
             #     1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
             # ),
         ]
-        self.lava_pools = [
-            Lava(820, 540, 120, 10),  # Example lava pool
-        ]
+        self.lava_pools = [Lava(1900, 575, 100, 25)]
         self.coins = [
-            Coin(350, 500),
-            Coin(750, 450),
-            Coin(1300, 400),
+            Coin(650, 500),
+            Coin(1100, 200),
         ]
 
         self.total_coins_collected = 0
 
         self.spike_traps = [
-            Spikes(600, 540, 200, 10, num_triangles=10),  # Example spikes
-            Spikes(1100, 540, 300, 10, num_triangles=15),
+            Spikes(1050, 530, 50, 20, 4),
+            Spikes(1350, 530, 150, 20, 10),
         ]
 
         # Font and text for how to play
