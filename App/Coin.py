@@ -1,5 +1,10 @@
 from Entity import Entity
+import os
 import pygame
+
+ASSETS_PATH = os.path.join(".", "App", "assets")
+
+COIN_IMAGE_PATH = os.path.join(ASSETS_PATH, "coin", "coin.PNG")
 
 
 class Coin(Entity):
@@ -8,7 +13,7 @@ class Coin(Entity):
     When a player collects a coin, it disappears, and the total coin count is updated.
     """
 
-    def __init__(self, x, y, width=20, height=20):
+    def __init__(self, x, y, width=35, height=35):
         """
         Initialize the Coin object.
 
@@ -20,6 +25,9 @@ class Coin(Entity):
         """
         super().__init__(x, y, width, height)
         self.collected = False  # Tracks if the coin has been collected
+        self.image = pygame.transform.scale(
+            pygame.image.load(COIN_IMAGE_PATH), (self.rect.width, self.rect.height)
+        )
 
     def draw(self, screen, camera):
         """
@@ -30,8 +38,7 @@ class Coin(Entity):
             camera (Camera): The camera object for world-to-screen translation.
         """
         if not self.collected:
-            screen_rect = camera.apply(self)
-            pygame.draw.ellipse(screen, (255, 215, 0), screen_rect)  # Gold color
+            screen.blit(self.image, camera.apply(self))
 
     def check_collision(self, player):
         """

@@ -1,12 +1,12 @@
 import pygame
 
+from BounceEffect import BounceLeft
 from Player import Player
 from Camera import Camera
 from Platform import Platform
-from Enemy import Enemy, MOVEMENT
+from Enemy import Enemy, EnemyMovement
 from Lava import Lava
 from Coin import Coin
-
 
 
 class Game:
@@ -30,13 +30,17 @@ class Game:
         )
         self.platforms = [
             Platform(0, 550, 2000, 50),  # Ground platform
-            Platform(300, 400, 200, 20),
+            # Platform(300, 400, 200, 20),
             Platform(600, 300, 200, 20),
             Platform(1200, 450, 300, 20),
         ]
         self.enemies = [
-            Enemy(400, 500, 50, 50, MOVEMENT.HORIZONTAL, speed=3, bounds=(400, 800)),
-            Enemy(1000, 450, 50, 50, MOVEMENT.VERTICAL, speed=2, bounds=(400, 500)),
+            Enemy(
+                400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=3, bounds=(400, 800)
+            ),
+            Enemy(
+                1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
+            ),
         ]
         self.lava_pools = [
             Lava(820, 540, 120, 10),  # Example lava pool
@@ -48,16 +52,19 @@ class Game:
         ]
         self.total_coins_collected = 0
 
-
     def start(self):
+
         running = True
         while running:
+            delta_time = self.clock.tick(60) / 1000.0
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
 
             # Update game objects
-            self.player.move()
+            self.player.update(delta_time)
+
             self.player.update_animation()
             self.player.apply_gravity()
             self.player.check_collision(self.platforms)
@@ -66,28 +73,27 @@ class Game:
             for enemy in self.enemies:
                 enemy.update()
                 if enemy.check_collision(self.player):
-                    print("Player hit by an enemy!")  # Replace with actual action logic
+                    self.player.bounce_effect.start(self.player)
 
             # Update the camera
             self.camera.update(self.player)
 
             # Drawing
             self.screen.fill((255, 255, 255))  # Sky blue
-            for platform in self.platforms:
-                platform.draw(self.screen, self.camera)
 
             self.player.draw(self.screen, self.camera)
 
+            for platform in self.platforms:
+                platform.draw(self.screen, self.camera)
+
             # Draw the enemy
             for enemy in self.enemies:
-                pygame.draw.rect(
-                    self.screen, (255, 165, 0), self.camera.apply(enemy)
-                )  # Orange color
+                enemy.draw(self.screen, self.camera)
 
-            # Draw lava 
+            # Draw lava
             for lava in self.lava_pools:
                 if lava.check_collision(self.player):
-                    print("Player fell into lava!")  # Replace with appropriate game mechanics
+                    self.player.bounce_effect.start(self.player)
                 lava.draw(self.screen, self.camera)
 
             # Draw coin and update coins
@@ -95,12 +101,15 @@ class Game:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
                     self.total_coins_collected += 1  # Update the total coin count
-                    print(f"Coins collected: {self.total_coins_collected}")  # Optional for debugging
+                    print(
+                        f"Coins collected: {self.total_coins_collected}"
+                    )  # Optional for debugging
 
             # Display total coins
             font = pygame.font.SysFont(None, 30)
-            coin_text = font.render(f"Sam's coins: {self.total_coins_collected}", True, (0, 0, 0))  # White text
+            coin_text = font.render(
+                f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
+            )  # White text
             self.screen.blit(coin_text, (600, 20))  # Position text at the top-right
 
             pygame.display.flip()
-            self.clock.tick(60)
