@@ -6,3 +6,6 @@ install args:
 
 fmt:
 	venv/bin/black .
+
+watch:
+	sh scripts/watch
