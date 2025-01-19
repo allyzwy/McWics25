@@ -1,3 +1,4 @@
+from os import walk
 import pygame
 from Lava import Lava
 from Spikes import Spikes
@@ -20,7 +21,7 @@ class Game:
         self.camera = Camera(800, 600, self.world_width, self.world_height)
 
         self.player = Player(
-            1800,
+            3900,
             800,
             50,
             110,
@@ -49,6 +50,16 @@ class Game:
             Platform(3000, 300, 50, 200),
             Platform(3250, 350, 50, 150),
             Platform(3500, 400, 50, 100),
+            Platform(4000, 450, 50, 50),
+            Platform(4050, 450, 50, 50),
+            Platform(4100, 450, 50, 50),
+            Platform(4150, 450, 50, 50),
+            Platform(4200, 450, 50, 50),
+            Platform(4250, 450, 50, 50),
+            Platform(4300, 450, 50, 50),
+            Platform(4350, 450, 50, 50),
+            Platform(4400, 450, 50, 50),
+            Platform(4450, 450, 50, 50),
         ]
         self.enemies = [
             Enemy(
@@ -80,6 +91,24 @@ class Game:
                 EnemyMovement.HORIZONTAL,
                 speed=6,
                 bounds=(3300, 3500),
+            ),
+            Enemy(
+                4000,
+                400,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=5,
+                bounds=(4000, 4200),
+            ),
+            Enemy(
+                4300,
+                400,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=4,
+                bounds=(4300, 4500),
             ),
         ]
         self.lava_pools = [
@@ -216,6 +245,7 @@ class Game:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
                     self.total_coins_collected += 1
+                    self.coin_sound.play()
 
             font = pygame.font.SysFont("Comic Sans MS", 18)
             coin_text = font.render(
