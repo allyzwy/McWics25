@@ -13,6 +13,8 @@ from Spikes import Spikes
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init() 
+
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
 
@@ -75,6 +77,17 @@ class Game:
             '   """',
         ]
         self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
+
+        # Load background music
+        pygame.mixer.music.load("App/Sounds/Cute_Circus.mp3")  
+        pygame.mixer.music.set_volume(0.5)  
+        pygame.mixer.music.play(-1, 0.0)  # Play music indefinitely
+
+        # Load sound effects for collision events
+        # self.lava_sound = pygame.mixer.Sound("App/Sounds/sad_meow.mp4") 
+        self.enemy_sound = pygame.mixer.Sound("App/Sounds/enemy_collide.mp3") 
+        self.spike_sound = pygame.mixer.Sound("App/Sounds/spikes_collide.mp3")  
+
 
     def draw_world_text(self, screen, camera):
         """
@@ -139,20 +152,23 @@ class Game:
                 for enemy in self.enemies:
                     enemy.update()
                     if enemy.check_collision(self.player):
+                        self.enemy_sound.play()
                         self.player.bounce_effect.start(self.player)
 
                     enemy.draw(self.screen, self.camera)
 
                 # Draw lava
                 for lava in self.lava_pools:
-                    if lava.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player)
                     lava.draw(self.screen, self.camera)
+                    if lava.check_collision(self.player):
+                        # self.lava_sound.play()
+                        self.player.bounce_effect.start(self.player)
 
                 # Draw spikes and update
                 for spikes in self.spike_traps:
                     spikes.draw(self.screen, self.camera)
                     if spikes.check_collision(self.player):
+                        self.spike_sound.play()
                         self.player.bounce_effect.start(self.player)
 
             # Draw coin and update coins
