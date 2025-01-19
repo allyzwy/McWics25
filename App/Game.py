@@ -1,5 +1,4 @@
 import pygame
-
 from BounceEffect import BounceLeft
 from Player import Player
 from Camera import Camera
@@ -57,8 +56,45 @@ class Game:
             Spikes(1100, 540, 300, 10, num_triangles=15),
         ]
 
-    def start(self):
+        # Font and text for how to play
+        self.font = pygame.font.SysFont('Comic Sans MS', 16)  # Default font, size 36
+        self.text_color = (0, 0, 0)  # Black color
+        self.how_to_play_text = [
+            "def how_to_play():",
+            "   \"\"\"",
+            "   1. Press the left and right arrow keys to move.",
+            "   2. Press the space bar to jump.",
+            "   3. Collect as many coins as you can.",
+            "   4. Avoid the martlet and don't touch the lava or spikes!",
+            "   \"\"\""
+        ]
+        self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
 
+    def draw_world_text(self, screen, camera):
+        """
+        Draw text at a specific location in the game world.
+
+        Args:
+            screen (pygame.Surface): The game screen.
+            camera (Camera): The camera object for world-to-screen translation.
+        """
+        y_offset = 0  # Vertical offset between text lines
+        for line in self.how_to_play_text:
+            # Render each line of text
+            text_surface = self.font.render(line, True, self.text_color)
+
+            # Adjust the position of the text to account for the camera
+            text_position = self.text_rect.move(0, y_offset)  # Apply offset for each line
+            
+            # Apply the camera's transformation to the position directly
+            screen_position = (text_position.x - camera.rect.x, text_position.y - camera.rect.y)
+
+            screen.blit(text_surface, screen_position)
+            
+            y_offset += 30  # Move down for the next line
+
+
+    def start(self):
         running = True
         while running:
             delta_time = self.clock.tick(60) / 1000.0
@@ -86,6 +122,9 @@ class Game:
             # Drawing
             self.screen.fill((255, 255, 255))  # Sky blue
 
+            # Draw world-positioned text
+            self.draw_world_text(self.screen, self.camera)
+
             self.player.draw(self.screen, self.camera)
 
             for platform in self.platforms:
@@ -111,11 +150,11 @@ class Game:
                     )  # Optional for debugging
 
             # Display total coins
-            font = pygame.font.SysFont(None, 30)
+            font = pygame.font.SysFont('Comic Sans MS', 18)
             coin_text = font.render(
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
             )  # White text
-            self.screen.blit(coin_text, (600, 20))  # Position text at the top-right
+            self.screen.blit(coin_text, (630, 20))  # Position text at the top-right
 
             # Draw spikes and update
             for spikes in self.spike_traps:
