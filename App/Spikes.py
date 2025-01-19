@@ -1,15 +1,18 @@
 from Entity import Entity
 from enum import Enum
 import pygame
+from enum import Enum
 
 
 class SpikesMode(Enum):
     HORIZONTAL = 1
     VERTICAL = 2
 
+
 class SpikesDirection(Enum):
     LEFT = 1
     RIGHT = 2
+
 
 class Spikes(Entity):
     """
@@ -51,9 +54,14 @@ class Spikes(Entity):
             triangle_points = [
                 (base_x, screen_rect.y + screen_rect.height),  # Bottom-left corner
                 (base_x + triangle_width / 2, screen_rect.y),  # Tip of the triangle
-                (base_x + triangle_width, screen_rect.y + screen_rect.height),  # Bottom-right corner
+                (
+                    base_x + triangle_width,
+                    screen_rect.y + screen_rect.height,
+                ),  # Bottom-right corner
             ]
-            pygame.draw.polygon(screen, (255, 0, 0), triangle_points)  # Draw red triangle
+            pygame.draw.polygon(
+                screen, (255, 0, 0), triangle_points
+            )  # Draw red triangle
 
     def check_collision(self, player):
         """
@@ -66,4 +74,3 @@ class Spikes(Entity):
             bool: True if collision occurs, False otherwise.
         """
         return self.rect.colliderect(player.rect)
-
