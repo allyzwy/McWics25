@@ -103,6 +103,12 @@ class Game:
         self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
         self.resume_music = False  # Flag to track music resumption
 
+        # Load and resize the flag
+        self.flag_image = pygame.image.load("App/assets/ending/samu_flag.png").convert_alpha()
+        self.flag_image = pygame.transform.scale(self.flag_image, (70, 350))  # Resize flag (width, height)
+        self.flag_rect = self.flag_image.get_rect()
+        self.flag_rect.topleft = (4000, 150)  # Place flag closer to the player and ground
+
     def draw_world_text(self, screen, camera):
         """
         Draw text at a specific location in the game world.
@@ -197,5 +203,14 @@ class Game:
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
             )  # White text
             self.screen.blit(coin_text, (630, 20))  # Position text at the top-right
+
+                        # Draw the flag
+            self.screen.blit(self.flag_image, self.camera.apply(self.flag_rect))
+
+
+            # Check collision with the flag
+            if self.player.rect.colliderect(self.flag_rect):
+                print("Congratulations! You've reached the end!")  # Placeholder for behavior
+                running = False  # End the game (optional)
 
             pygame.display.flip()
