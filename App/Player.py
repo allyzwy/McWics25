@@ -164,7 +164,7 @@ class Player(Entity):
         # 4) Move and Collision in Y
         # --------------------------------
         self.velocity_y += self.gravity
-        self.rect.y += self.velocity_y #type: ignore
+        self.rect.y += self.velocity_y
 
         # Reset on_ground until collisions prove otherwise
         self.on_ground = False
@@ -210,10 +210,10 @@ class Player(Entity):
             self.direction == PlayerDirection.LEFT
             and self.current_state == PlayerState.HIT
         ):
-            current_frame = pygame.transform.flip(current_frame, False, False) #type: ignore
+            current_frame = pygame.transform.flip(current_frame, False, False)
 
         # Flip if facing LEFT
         elif self.direction == PlayerDirection.LEFT:
-            current_frame = pygame.transform.flip(current_frame, True, False) #type: ignore
+            current_frame = pygame.transform.flip(current_frame, True, False)
 
         screen.blit(current_frame, camera.apply(self))
