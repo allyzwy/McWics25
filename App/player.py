@@ -3,7 +3,6 @@ from BounceEffect import BounceLeft
 from Entity import Entity
 from enum import Enum
 import os
-from typing import Literal
 
 ASSETS_PATH = os.path.join(".", "App", "assets")
 
@@ -14,6 +13,7 @@ JUMP_FRAMES = [
 WALK_FRAMES = [
     os.path.join(ASSETS_PATH, "player", "walk", f"{i}.PNG") for i in range(1, 6)
 ]
+HIT_FRAMES = []
 
 
 class PlayerState(Enum):
