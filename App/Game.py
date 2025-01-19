@@ -251,7 +251,7 @@ class Game:
 
             # Check collision with the flag
             if self.player.rect.colliderect(self.flag.rect):
-                print("Congratulations! You've reached the end!")
+                self._end_game_sequence()
                 running = False
 
             pygame.display.flip()
