@@ -2,6 +2,14 @@ from Entity import Entity
 import pygame
 
 
+class SpikesMode(Enum):
+    HORIZONTAL = 1
+    VERTICAL = 2
+
+class SpikesDirection(Enum):
+    LEFT= 1
+    RIGHT = 2
+
 class Spikes(Entity):
     """
     Spikes are a series of triangles that are traversable by the player.
@@ -21,6 +29,8 @@ class Spikes(Entity):
         """
         super().__init__(x, y, width, height)
         self.num_triangles = num_triangles
+        self.mode = 
+        self.direction = 
 
     def draw(self, screen, camera):
         """
