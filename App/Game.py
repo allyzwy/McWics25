@@ -59,8 +59,8 @@ class Game:
                 50,
                 50,
                 EnemyMovement.HORIZONTAL,
-                speed=4,
-                bounds=(2000, 2500),
+                speed=5,
+                bounds=(2000, 2400),
             ),
         ]
         self.lava_pools = [
