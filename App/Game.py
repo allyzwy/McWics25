@@ -7,7 +7,7 @@ from Platform import Platform
 from Enemy import Enemy, EnemyMovement
 from Lava import Lava
 from Coin import Coin
-
+from Spikes import Spikes
 
 class Game:
     def __init__(self):
@@ -51,6 +51,10 @@ class Game:
             Coin(1300, 400),
         ]
         self.total_coins_collected = 0
+        self.spike_traps = [
+            Spikes(600, 540, 200, 10, num_triangles=10),  # Example spikes
+            Spikes(1100, 540, 300, 10, num_triangles=15),
+        ]
 
     def start(self):
 
@@ -111,5 +115,11 @@ class Game:
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
             )  # White text
             self.screen.blit(coin_text, (600, 20))  # Position text at the top-right
+
+            # Draw spikes and update
+            for spikes in self.spike_traps:
+                spikes.draw(self.screen, self.camera)
+                if spikes.check_collision(self.player):
+                    self.player.bounce_effect.start(self.player)
 
             pygame.display.flip()

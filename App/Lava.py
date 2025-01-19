@@ -41,7 +41,4 @@ class Lava(Entity):
         Returns:
             bool: True if collision occurs, False otherwise.
         """
-        if self.rect.colliderect(player.rect):
-            print("Player collided with lava!")  # Replace with action logic
-            return True
-        return False
+        return self.rect.colliderect(player.rect)
