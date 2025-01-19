@@ -11,8 +11,6 @@ from Coin import Coin
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()
-
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
 
@@ -162,7 +160,6 @@ class Game:
                 if enemy.check_collision(self.player):
                     self.enemy_sound.play()
                     self.player.bounce_effect.start(self.player)
-
                 enemy.draw(self.screen, self.camera)
 
             for lava in self.lava_pools:
@@ -193,11 +190,6 @@ class Game:
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
-                    self.coin_sound.play()
-                    self.total_coins_collected += 1  # Update the total coin count
-                    print(
-                        f"Coins collected: {self.total_coins_collected}"
-                    )  # Optional for debugging
                     self.total_coins_collected += 1
 
             font = pygame.font.SysFont("Comic Sans MS", 18)

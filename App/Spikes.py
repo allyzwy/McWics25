@@ -33,8 +33,8 @@ class Spikes(Entity):
         """
         super().__init__(x, y, width, height)
         self.num_triangles = num_triangles
-        # self.mode = 
-        # self.direction = 
+        # self.mode =
+        # self.direction =
 
     def draw(self, screen, camera):
         """
