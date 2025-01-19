@@ -1,6 +1,4 @@
-from codecs import latin_1_decode
 import pygame
-from BounceEffect import BounceLeft
 from Player import Player
 from Camera import Camera
 from Platform import Platform
