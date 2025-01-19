@@ -20,7 +20,7 @@ class Game:
         self.camera = Camera(800, 600, self.world_width, self.world_height)
 
         self.player = Player(
-            100,
+            1800,
             800,
             50,
             110,
@@ -39,16 +39,31 @@ class Game:
             Platform(1300, 500, 50, 50),
             Platform(1500, 500, 50, 50),
             Platform(2000, 500, 5000, 100),  # Ground platform
+            Platform(2300, 375, 50, 50),
+            Platform(2300, 375, 50, 50),
+            Platform(2350, 375, 50, 50),
+            Platform(2400, 375, 50, 50),
+            Platform(2550, 325, 50, 50),
+            Platform(2600, 325, 50, 50),
+            Platform(2800, 255, 50, 50),
         ]
         self.enemies = [
             Enemy(
                 400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=2, bounds=(300, 600)
             ),
-            # Enemy(
-            #     1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
-            # ),
+            Enemy(
+                2000,
+                450,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=5,
+                bounds=(2000, 2400),
+            ),
         ]
-        self.lava_pools = [Lava(1900, 575, 100, 25)]
+        self.lava_pools = [
+            Lava(1900, 575, 100, 25),
+        ]
         self.coins = [
             Coin(650, 500),
             Coin(1100, 200),
@@ -59,6 +74,7 @@ class Game:
         self.spike_traps = [
             Spikes(1050, 530, 50, 20, 4),
             Spikes(1350, 530, 150, 20, 10),
+            Spikes(2550, 305, 30, 20, 3),
         ]
 
         # Font and text for how to play
@@ -74,6 +90,18 @@ class Game:
             '   """',
         ]
         self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
+
+        # Load background music
+        pygame.mixer.music.load("App/Sounds/Cute_Circus.mp3")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, 0.0)  # Play music indefinitely
+
+        # Load sound effects for collision events
+        self.lava_sound = pygame.mixer.Sound("App/Sounds/windows_startup.mp3")
+        self.enemy_sound = pygame.mixer.Sound("App/Sounds/enemy_collide.mp3")
+        self.spike_sound = pygame.mixer.Sound("App/Sounds/spikes_collide.mp3")
+        self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
+        self.resume_music = False  # Flag to track music resumption
 
     def draw_world_text(self, screen, camera):
         """
@@ -112,20 +140,14 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
 
-            # Drawing
-            self.screen.fill((255, 255, 255))  # Sky blue
+            self.screen.fill((255, 255, 255))
 
-            # Update game objects
-            self.player.update(delta_time, self.platforms, self.screen)
+            self.player.update(delta_time, self.platforms, self.screen, self.camera)
 
             self.player.update_animation()
-            # self.player.apply_gravity(self.platforms)
-            # self.player.check_platform_collision(self.platforms)
 
-            # Update the camera
             self.camera.update(self.player)
 
-            # Draw world-positioned text
             self.draw_world_text(self.screen, self.camera)
 
             self.player.draw(self.screen, self.camera)
@@ -133,23 +155,37 @@ class Game:
             for platform in self.platforms:
                 platform.draw(self.screen, self.camera)
 
-            if mode == "standard":
-                for enemy in self.enemies:
-                    enemy.update()
-                    if enemy.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player, self.screen)
+            for enemy in self.enemies:
+                enemy.update()
+                if enemy.check_collision(self.player):
+                    self.enemy_sound.play()
+                    self.player.bounce_effect.start(self.player)
+                enemy.draw(self.screen, self.camera)
 
-                    enemy.draw(self.screen, self.camera)
+            for lava in self.lava_pools:
+                lava.draw(self.screen, self.camera)
+                if lava.check_collision(self.player):
+                    self.player.bounce_effect.start(
+                        self.player,
+                    )
+                    if (
+                        not self.lava_sound.get_num_channels()
+                    ):  # Play sound only if not already playing
+                        pygame.mixer.music.pause()  # Pause the background music
+                        self.lava_sound.play()
+                        self.resume_music = True  # Set flag to resume music
 
-                for lava in self.lava_pools:
-                    if lava.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player, self.screen)
-                    lava.draw(self.screen, self.camera)
+            if self.resume_music and not pygame.mixer.get_busy():
+                pygame.mixer.music.unpause()
+                self.resume_music = False
 
-                for spikes in self.spike_traps:
-                    spikes.draw(self.screen, self.camera)
-                    if spikes.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player, self.screen)
+            for spikes in self.spike_traps:
+                spikes.draw(self.screen, self.camera)
+                if spikes.check_collision(self.player):
+                    self.spike_sound.play()
+                    self.player.bounce_effect.start(
+                        self.player,
+                    )
 
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)
