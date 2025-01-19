@@ -7,7 +7,10 @@ ASSETS_PATH = os.path.join(".", "App", "assets")
 
 STATIC_FRAME = os.path.join(ASSETS_PATH, "player", "static.PNG")
 JUMP_FRAMES = [
-    os.path.join(ASSETS_PATH, "player", "jump", f"{i}.PNG") for i in range(1, 8)
+    os.path.join(ASSETS_PATH, "player", "jump", f"{i}.PNG") for i in range(1, 9)
+]
+WALK_FRAMES = [
+    os.path.join(ASSETS_PATH, "player", "walk", f"{i}.PNG") for i in range(1, 6)
 ]
 
 
@@ -18,11 +21,16 @@ class PlayerState(Enum):
     HIT = "hit"
 
 
+class PlayerDirection(Enum):
+    LEFT = "left"
+    RIGHT = "right"
+
+
 class Player(Entity):
     animations = {
         PlayerState.STATIC: [STATIC_FRAME],
         PlayerState.JUMP: JUMP_FRAMES,
-        PlayerState.WALK: [STATIC_FRAME],
+        PlayerState.WALK: WALK_FRAMES,
         PlayerState.HIT: [STATIC_FRAME],
     }
 
@@ -45,12 +53,6 @@ class Player(Entity):
         self.world_width = world_width
         self.world_height = world_height
 
-        # Load image if provided, else None
-        self.image = pygame.image.load(STATIC_FRAME)
-        self.image = pygame.transform.scale(
-            self.image, (width, height)
-        )  # Scale to fit rect
-
         # # Load animations
         self.animations = {
             state: self.load_frames(paths, width, height)
@@ -60,7 +62,8 @@ class Player(Entity):
         self.current_frame_index = 0
         self.frame_timer = 0
         self.frame_delay = 5  # Frames per animation update
-        print(self.animations)
+
+        self.direction = PlayerDirection.RIGHT  # Default direction
 
     def load_frames(self, paths, width, height):
         """
@@ -110,12 +113,14 @@ class Player(Entity):
             if self.rect.left < 0:
                 self.rect.left = 0
             moving = True
+            self.direction = PlayerDirection.LEFT
 
         if keys[pygame.K_RIGHT]:
             self.rect.x += 5
             if self.rect.right > self.world_width:
                 self.rect.right = self.world_width
             moving = True
+            self.direction = PlayerDirection.RIGHT
 
         # Handle jumping
         if keys[pygame.K_SPACE] and self.on_ground:
@@ -151,18 +156,10 @@ class Player(Entity):
                 self.on_ground = True
 
     def draw(self, screen, camera):
-        if self.image:
-            screen.blit(self.image, camera.apply(self))
-        else:
-            pygame.draw.rect(screen, (255, 0, 0), camera.apply(self))
-
-    def draw(self, screen, camera):
-        """
-        Draw the player with the current animation frame.
-
-        Args:
-            screen: The pygame surface to draw on.
-            camera: The camera object to apply transformations.
-        """
         current_frame = self.animations[self.current_state][self.current_frame_index]
+
+        # Flip the frame if the direction is LEFT
+        if self.direction == PlayerDirection.LEFT:
+            current_frame = pygame.transform.flip(current_frame, True, False)
+
         screen.blit(current_frame, camera.apply(self))

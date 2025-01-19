@@ -3,7 +3,7 @@ import pygame
 from Player import Player
 from Camera import Camera
 from Platform import Platform
-from Enemy import Enemy, MOVEMENT
+from Enemy import Enemy, EnemyMovement
 from Lava import Lava
 
 
@@ -33,8 +33,12 @@ class Game:
             Platform(1200, 450, 300, 20),
         ]
         self.enemies = [
-            Enemy(400, 500, 50, 50, MOVEMENT.HORIZONTAL, speed=3, bounds=(400, 800)),
-            Enemy(1000, 450, 50, 50, MOVEMENT.VERTICAL, speed=2, bounds=(400, 500)),
+            Enemy(
+                400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=3, bounds=(400, 800)
+            ),
+            Enemy(
+                1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
+            ),
         ]
         self.lava_pools = [
             Lava(820, 540, 120, 10),  # Example lava pool
@@ -64,21 +68,22 @@ class Game:
 
             # Drawing
             self.screen.fill((255, 255, 255))  # Sky blue
-            for platform in self.platforms:
-                platform.draw(self.screen, self.camera)
 
             self.player.draw(self.screen, self.camera)
 
+            for platform in self.platforms:
+                platform.draw(self.screen, self.camera)
+
             # Draw the enemy
             for enemy in self.enemies:
-                pygame.draw.rect(
-                    self.screen, (255, 165, 0), self.camera.apply(enemy)
-                )  # Orange color
+                enemy.draw(self.screen, self.camera)
 
-            # Draw lava 
+            # Draw lava
             for lava in self.lava_pools:
                 if lava.check_collision(self.player):
-                    print("Player fell into lava!")  # Replace with appropriate game mechanics
+                    print(
+                        "Player fell into lava!"
+                    )  # Replace with appropriate game mechanics
                 lava.draw(self.screen, self.camera)
 
             pygame.display.flip()
