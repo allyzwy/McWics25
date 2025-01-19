@@ -63,6 +63,13 @@ class Enemy(Entity):
             for frame in Enemy.FRAMES
         ]
 
+    def _reverse_direction(self):
+        if self.direction == EnemyDirection.LEFT:
+            self.direction = EnemyDirection.RIGHT
+
+        elif self.direction == EnemyDirection.RIGHT:
+            self.direction = EnemyDirection.LEFT
+
     def update_animation(self):
         self.frame_timer += 0.5
 
@@ -71,13 +78,6 @@ class Enemy(Entity):
             self.current_frame_index = (self.current_frame_index + 1) % len(
                 Enemy.FRAMES
             )
-
-    def _reverse_direction(self):
-        if self.direction == EnemyDirection.LEFT:
-            self.direction = EnemyDirection.RIGHT
-
-        elif self.direction == EnemyDirection.RIGHT:
-            self.direction = EnemyDirection.LEFT
 
     def update(self):
         if self.trajectory_type == EnemyMovement.HORIZONTAL:

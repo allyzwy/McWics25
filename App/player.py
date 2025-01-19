@@ -1,7 +1,9 @@
 import pygame
+from BounceEffect import BounceLeft
 from Entity import Entity
 from enum import Enum
 import os
+from typing import Literal
 
 ASSETS_PATH = os.path.join(".", "App", "assets")
 
@@ -65,6 +67,8 @@ class Player(Entity):
 
         self.direction = PlayerDirection.RIGHT  # Default direction
 
+        self.bounce_effect = BounceLeft(500, 200)
+
     def load_frames(self, paths, width, height):
         """
         Load and scale animation frames.
@@ -80,7 +84,7 @@ class Player(Entity):
         frames = [pygame.image.load(path) for path in paths]
         return [pygame.transform.scale(frame, (width, height)) for frame in frames]
 
-    def set_state(self, state):
+    def _set_state(self, state):
         """
         Set the player's animation state.
 
@@ -103,37 +107,43 @@ class Player(Entity):
                 self.animations[self.current_state]
             )
 
-    def move(self):
-        keys = pygame.key.get_pressed()
-        moving = False
+    def update(self, delta_time):
 
-        # Handle left and right movement
-        if keys[pygame.K_LEFT]:
-            self.rect.x -= 5
-            if self.rect.left < 0:
-                self.rect.left = 0
-            moving = True
-            self.direction = PlayerDirection.LEFT
+        if self.bounce_effect.is_active():
+            self.bounce_effect.update(delta_time)
+            self._set_state(PlayerState.HIT)
 
-        if keys[pygame.K_RIGHT]:
-            self.rect.x += 5
-            if self.rect.right > self.world_width:
-                self.rect.right = self.world_width
-            moving = True
-            self.direction = PlayerDirection.RIGHT
-
-        # Handle jumping
-        if keys[pygame.K_SPACE] and self.on_ground:
-            self.velocity_y = -15
-            self.set_state(PlayerState.JUMP)
-
-        # State transitions
-        if not self.on_ground:
-            self.set_state(PlayerState.JUMP)  # Airborne (jumping or falling)
-        elif moving:
-            self.set_state(PlayerState.WALK)  # Walking on ground
         else:
-            self.set_state(PlayerState.STATIC)  # Standing idle
+            keys = pygame.key.get_pressed()
+            moving = False
+
+            # Handle left and right movement
+            if keys[pygame.K_LEFT]:
+                self.rect.x -= 5
+                if self.rect.left < 0:
+                    self.rect.left = 0
+                moving = True
+                self.direction = PlayerDirection.LEFT
+
+            if keys[pygame.K_RIGHT]:
+                self.rect.x += 5
+                if self.rect.right > self.world_width:
+                    self.rect.right = self.world_width
+                moving = True
+                self.direction = PlayerDirection.RIGHT
+
+            # Handle jumping
+            if keys[pygame.K_SPACE] and self.on_ground:
+                self.velocity_y = -15
+                self._set_state(PlayerState.JUMP)
+
+            # State transitions
+            if not self.on_ground:
+                self._set_state(PlayerState.JUMP)  # Airborne (jumping or falling)
+            elif moving:
+                self._set_state(PlayerState.WALK)  # Walking on ground
+            else:
+                self._set_state(PlayerState.STATIC)  # Standing idle
 
         self.update_animation()
 
@@ -150,7 +160,11 @@ class Player(Entity):
     def check_collision(self, platforms):
         self.on_ground = False
         for platform in platforms:
-            if self.rect.colliderect(platform) and self.velocity_y >= 0:
+            if (
+                self.rect.colliderect(platform)
+                and self.velocity_y >= 0
+                and self.current_state != PlayerState.HIT
+            ):
                 self.rect.bottom = platform.rect.top
                 self.velocity_y = 0
                 self.on_ground = True
