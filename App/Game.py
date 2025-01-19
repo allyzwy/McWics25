@@ -84,9 +84,12 @@ class Game:
         pygame.mixer.music.play(-1, 0.0)  # Play music indefinitely
 
         # Load sound effects for collision events
-        # self.lava_sound = pygame.mixer.Sound("App/Sounds/sad_meow.mp4") 
+        self.lava_sound = pygame.mixer.Sound("App/Sounds/windows_startup.mp3") 
         self.enemy_sound = pygame.mixer.Sound("App/Sounds/enemy_collide.mp3") 
         self.spike_sound = pygame.mixer.Sound("App/Sounds/spikes_collide.mp3")  
+        self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
+        self.resume_music = False  # Flag to track music resumption
+
 
 
     def draw_world_text(self, screen, camera):
@@ -156,13 +159,21 @@ class Game:
                         self.player.bounce_effect.start(self.player)
 
                     enemy.draw(self.screen, self.camera)
-
+                
                 # Draw lava
                 for lava in self.lava_pools:
                     lava.draw(self.screen, self.camera)
                     if lava.check_collision(self.player):
-                        # self.lava_sound.play()
+                        if not self.lava_sound.get_num_channels():  # Play sound only if not already playing
+                            pygame.mixer.music.pause()  # Pause the background music
+                            self.lava_sound.play()
+                            self.resume_music = True  # Set flag to resume music
                         self.player.bounce_effect.start(self.player)
+
+                # Check if the music should resume
+                if self.resume_music and not pygame.mixer.get_busy():  # Resume when no sound is playing
+                    pygame.mixer.music.unpause()
+                    self.resume_music = False  # Reset the flag
 
                 # Draw spikes and update
                 for spikes in self.spike_traps:
@@ -175,6 +186,7 @@ class Game:
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
+                    self.coin_sound.play()
                     self.total_coins_collected += 1  # Update the total coin count
                     print(
                         f"Coins collected: {self.total_coins_collected}"
