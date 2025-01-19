@@ -16,9 +16,18 @@ class Camera:
         self.world_width = world_width
         self.world_height = world_height
 
-    def apply(self, entity):
-        """Convert an entity's world position to its screen position."""
-        return entity.rect.move(-self.rect.x, -self.rect.y)
+    def apply(self, rect_or_entity):
+        """
+        Convert a rect or an entity's world position to its screen position.
+        Args:
+            rect_or_entity: A pygame.Rect or an entity with a rect attribute.
+        Returns:
+            pygame.Rect: The transformed rect in screen coordinates.
+        """
+        if isinstance(rect_or_entity, pygame.Rect):
+            return rect_or_entity.move(-self.rect.x, -self.rect.y)
+        return rect_or_entity.rect.move(-self.rect.x, -self.rect.y)
+
 
     def update(self, target):
         """Center the camera on the target (e.g., the player)."""
