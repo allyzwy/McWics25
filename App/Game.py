@@ -159,7 +159,7 @@ class Game:
         self.resume_music = False  # Flag to track music resumption
 
         # Load flag
-        self.flag = Flag(4000, 150, 70, 350, "App/assets/ending/samu_flag.png")
+        self.flag = Flag(6000, 150, 70, 350, "App/assets/ending/samu_flag.png")
 
     def _end_game_sequence(self):
         """
