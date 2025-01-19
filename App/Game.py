@@ -1,3 +1,4 @@
+from codecs import latin_1_decode
 import pygame
 
 from BounceEffect import BounceLeft
@@ -72,11 +73,11 @@ class Game:
                     running = False
 
             # Update game objects
-            self.player.update(delta_time)
+            self.player.update(delta_time, self.platforms)
 
             self.player.update_animation()
-            self.player.apply_gravity()
-            self.player.check_platform_collision(self.platforms)
+            # self.player.apply_gravity(self.platforms)
+            # self.player.check_platform_collision(self.platforms)
 
             # Update the camera
             self.camera.update(self.player)
