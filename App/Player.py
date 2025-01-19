@@ -43,7 +43,11 @@ class Player(Entity):
         Initialize the player object.
         """
         self.rect = pygame.Rect(x, y, width, height)
+
+        # Horizontal & vertical velocities
+        self.velocity_x = 0
         self.velocity_y = 0
+
         self.on_ground = False
         self.gravity = 0.8
         self.world_width = world_width
@@ -63,7 +67,9 @@ class Player(Entity):
         self.frame_delay = 5
 
         self.direction = PlayerDirection.RIGHT
-        self.bounce_effect = BounceLeft(500, 200)  # Example effect
+
+        # Example bounce/knockback effect class
+        self.bounce_effect = BounceLeft(500, 200)
 
     def load_frames(self, paths, new_height):
         frames = [pygame.image.load(path) for path in paths]
@@ -90,66 +96,81 @@ class Player(Entity):
 
     def update(self, delta_time, platforms):
         """
-        Update player's movement, collisions (horizontal and vertical),
-        and animation in a single method to avoid sinking or passing through.
+        Update player's movement, collisions, and animation in a single method.
+        This handles normal input as well as bounce/knockback arcs.
         """
+        # --------------------
+        # 1) Check Bounce Effect
+        # --------------------
         if self.bounce_effect.is_active():
-            # Bounce/knockback logic
             self.bounce_effect.update(delta_time)
             self._set_state(PlayerState.HIT)
-            self.direction = PlayerDirection.RIGHT
-            # If you want to apply knockback, do so before collision checks:
-            #   knockback_x = some function of bounce_effect...
-            #   self.rect.x += knockback_x
-            #   (Then do collisions as normal.)
+            if not self.bounce_effect.is_active():
+                self._set_state(PlayerState.STATIC)
+
+            # Example logic: use velocity_x, velocity_y from bounce
+            # Let's say bounce gives a "parabolic" knockback to the left
+            # You can tweak these values or read them from bounce_effect's logic
+            self.velocity_x = -8  # knockback to the left
+            # If you want an upward initial kick:
+            if self.on_ground:
+                self.velocity_y = -15
+
+            # Force direction to left (you can do right if you want)
+            self.direction = PlayerDirection.LEFT
+
         else:
-            # ---------------------------
-            # 1) Handle Horizontal Input
-            # ---------------------------
-            dx = 0
+            # --------------------
+            # 2) Normal Input
+            # --------------------
             keys = pygame.key.get_pressed()
 
+            # Reset horizontal velocity each frame (unless you want momentum)
+            self.velocity_x = 0
+
             if keys[pygame.K_LEFT]:
-                dx = -5
+                self.velocity_x = -5
                 self.direction = PlayerDirection.LEFT
             elif keys[pygame.K_RIGHT]:
-                dx = 5
+                self.velocity_x = 5
                 self.direction = PlayerDirection.RIGHT
 
-            # Move horizontally
-            self.rect.x += dx
-
-            # World boundary check (horizontal)
-            if self.rect.left < 0:
-                self.rect.left = 0
-            elif self.rect.right > self.world_width:
-                self.rect.right = self.world_width
-
-            # -------------------------------
-            # 2) Check Horizontal Collisions
-            # -------------------------------
-            for platform in platforms:
-                if self.rect.colliderect(platform.rect):
-                    # If moving right, push out on left side
-                    if dx > 0:
-                        self.rect.right = platform.rect.left
-                    # If moving left, push out on right side
-                    elif dx < 0:
-                        self.rect.left = platform.rect.right
-
-            # --------------------
-            # 3) Vertical Movement
-            # --------------------
             if keys[pygame.K_SPACE] and self.on_ground:
                 self.velocity_y = -15
 
-            self.velocity_y += self.gravity
-            self.rect.y += self.velocity_y
+        # ----------------------------
+        # 3) Move and Collision in X
+        # ----------------------------
+        self.rect.x += self.velocity_x
 
-            # -------------------------------
-            # 4) Check Vertical Collisions
-            # -------------------------------
-            self.on_ground = False
+        # World boundary check (horizontal)
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > self.world_width:
+            self.rect.right = self.world_width
+
+        # Check horizontal collisions
+        if platforms:
+            for platform in platforms:
+                if self.rect.colliderect(platform.rect):
+                    # Moving right, push player out on the left side
+                    if self.velocity_x > 0:
+                        self.rect.right = platform.rect.left
+                    # Moving left, push player out on the right side
+                    elif self.velocity_x < 0:
+                        self.rect.left = platform.rect.right
+
+        # --------------------------------
+        # 4) Move and Collision in Y
+        # --------------------------------
+        self.velocity_y += self.gravity
+        self.rect.y += self.velocity_y
+
+        # Reset on_ground until collisions prove otherwise
+        self.on_ground = False
+
+        # Check vertical collisions
+        if platforms:
             for platform in platforms:
                 if self.rect.colliderect(platform.rect):
                     # Falling down onto the platform
@@ -162,32 +183,38 @@ class Player(Entity):
                         self.rect.top = platform.rect.bottom
                         self.velocity_y = 0
 
-            # World boundary (floor)
-            if self.rect.bottom > self.world_height:
-                self.rect.bottom = self.world_height
-                self.velocity_y = 0
-                self.on_ground = True
+        # Check world floor
+        if self.rect.bottom > self.world_height:
+            self.rect.bottom = self.world_height
+            self.velocity_y = 0
+            self.on_ground = True
 
-            # --------------------
-            # 5) Update State
-            # --------------------
+        # --------------------
+        # 5) State & Animation
+        # --------------------
+        if self.current_state != PlayerState.HIT:
+            # If we're in HIT state, we keep it until bounce_effect ends
             if not self.on_ground:
                 self._set_state(PlayerState.JUMP)
-            elif dx != 0:
+            elif self.velocity_x != 0:
                 self._set_state(PlayerState.WALK)
             else:
                 self._set_state(PlayerState.STATIC)
 
-        # --------------------
-        # 6) Animation
-        # --------------------
         self.update_animation()
 
     def draw(self, screen, camera):
         current_frame = self.animations[self.current_state][self.current_frame_index]
 
+        if (
+            self.direction == PlayerDirection.LEFT
+            and self.current_state == PlayerState.HIT
+        ):
+            print("here")
+            current_frame = pygame.transform.flip(current_frame, True, False)
+
         # Flip if facing LEFT
-        if self.direction == PlayerDirection.LEFT:
+        elif self.direction == PlayerDirection.LEFT:
             current_frame = pygame.transform.flip(current_frame, True, False)
 
         screen.blit(current_frame, camera.apply(self))

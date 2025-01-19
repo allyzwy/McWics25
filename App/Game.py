@@ -35,15 +35,16 @@ class Game:
             # Platform(300, 400, 200, 20),
             Platform(500, 500, 40, 150),
             Platform(600, 400, 200, 50),
+            Platform(700, 300, 200, 100),
             Platform(1200, 450, 300, 20),
         ]
         self.enemies = [
             Enemy(
                 400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=3, bounds=(400, 800)
             ),
-            Enemy(
-                1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
-            ),
+            # Enemy(
+            #     1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
+            # ),
         ]
         self.lava_pools = [
             Lava(820, 540, 120, 10),  # Example lava pool
@@ -62,16 +63,16 @@ class Game:
         ]
 
         # Font and text for how to play
-        self.font = pygame.font.SysFont('Comic Sans MS', 16)  # Default font, size 36
+        self.font = pygame.font.SysFont("Comic Sans MS", 16)  # Default font, size 36
         self.text_color = (0, 0, 0)  # Black color
         self.how_to_play_text = [
             "def how_to_play():",
-            "   \"\"\"",
+            '   """',
             "   1. Press the left and right arrow keys to move.",
             "   2. Press the space bar to jump.",
             "   3. Collect as many coins as you can.",
             "   4. Avoid the martlet and don't touch the lava or spikes!",
-            "   \"\"\""
+            '   """',
         ]
         self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
 
@@ -89,15 +90,19 @@ class Game:
             text_surface = self.font.render(line, True, self.text_color)
 
             # Adjust the position of the text to account for the camera
-            text_position = self.text_rect.move(0, y_offset)  # Apply offset for each line
-            
+            text_position = self.text_rect.move(
+                0, y_offset
+            )  # Apply offset for each line
+
             # Apply the camera's transformation to the position directly
-            screen_position = (text_position.x - camera.rect.x, text_position.y - camera.rect.y)
+            screen_position = (
+                text_position.x - camera.rect.x,
+                text_position.y - camera.rect.y,
+            )
 
             screen.blit(text_surface, screen_position)
-            
-            y_offset += 30  # Move down for the next line
 
+            y_offset += 30  # Move down for the next line
 
     def start(self, mode="standard"):
         running = True
@@ -160,7 +165,7 @@ class Game:
                     )  # Optional for debugging
 
             # Display total coins
-            font = pygame.font.SysFont('Comic Sans MS', 18)
+            font = pygame.font.SysFont("Comic Sans MS", 18)
             coin_text = font.render(
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
             )  # White text
