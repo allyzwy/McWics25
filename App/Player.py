@@ -13,7 +13,9 @@ JUMP_FRAMES = [
 WALK_FRAMES = [
     os.path.join(ASSETS_PATH, "player", "walk", f"{i}.PNG") for i in range(1, 6)
 ]
-HIT_FRAMES = []
+HIT_FRAMES = [
+    os.path.join(ASSETS_PATH, "player", "hit", f"{i}.PNG") for i in range(1, 8)
+]
 
 
 class PlayerState(Enum):
@@ -33,7 +35,7 @@ class Player(Entity):
         PlayerState.STATIC: [STATIC_FRAME],
         PlayerState.JUMP: JUMP_FRAMES,
         PlayerState.WALK: WALK_FRAMES,
-        PlayerState.HIT: [STATIC_FRAME],
+        PlayerState.HIT: HIT_FRAMES,
     }
 
     def __init__(self, x, y, width, height, world_width, world_height):
@@ -55,9 +57,12 @@ class Player(Entity):
         self.world_width = world_width
         self.world_height = world_height
 
-        # # Load animations
+        self.width = width
+        self.height = height
+
+        # Load animations
         self.animations = {
-            state: self.load_frames(paths, width, height)
+            state: self.load_frames(paths, height)
             for state, paths in Player.animations.items()
         }
         self.current_state = PlayerState.STATIC  # Default state
@@ -69,7 +74,7 @@ class Player(Entity):
 
         self.bounce_effect = BounceLeft(500, 200)
 
-    def load_frames(self, paths, width, height):
+    def load_frames(self, paths, new_height):
         """
         Load and scale animation frames.
 
@@ -82,7 +87,11 @@ class Player(Entity):
             list: List of loaded and scaled pygame surfaces.
         """
         frames = [pygame.image.load(path) for path in paths]
-        return [pygame.transform.scale(frame, (width, height)) for frame in frames]
+        new_width = int(self.width * (new_height / self.height))
+        print(new_width, new_height)
+        return [
+            pygame.transform.scale(frame, (new_width, new_height)) for frame in frames
+        ]
 
     def _set_state(self, state):
         """
@@ -112,6 +121,7 @@ class Player(Entity):
         if self.bounce_effect.is_active():
             self.bounce_effect.update(delta_time)
             self._set_state(PlayerState.HIT)
+            self.direction = PlayerDirection.RIGHT
 
         else:
             keys = pygame.key.get_pressed()
