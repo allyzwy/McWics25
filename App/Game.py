@@ -9,6 +9,7 @@ from Lava import Lava
 from Coin import Coin
 from Spikes import Spikes
 
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -22,7 +23,7 @@ class Game:
 
         self.player = Player(
             100,
-            500,
+            800,
             50,
             110,
             self.world_width,
@@ -32,6 +33,7 @@ class Game:
         self.platforms = [
             Platform(0, 550, 2000, 50),  # Ground platform
             # Platform(300, 400, 200, 20),
+            Platform(500, 500, 40, 150),
             Platform(600, 300, 200, 20),
             Platform(1200, 450, 300, 20),
         ]
@@ -51,13 +53,15 @@ class Game:
             Coin(750, 450),
             Coin(1300, 400),
         ]
+
         self.total_coins_collected = 0
+
         self.spike_traps = [
             Spikes(600, 540, 200, 10, num_triangles=10),  # Example spikes
             Spikes(1100, 540, 300, 10, num_triangles=15),
         ]
 
-    def start(self):
+    def start(self, mode="standard"):
 
         running = True
         while running:
@@ -74,12 +78,6 @@ class Game:
             self.player.apply_gravity()
             self.player.check_platform_collision(self.platforms)
 
-            # Update enemies
-            for enemy in self.enemies:
-                enemy.update()
-                if enemy.check_collision(self.player):
-                    self.player.bounce_effect.start(self.player)
-
             # Update the camera
             self.camera.update(self.player)
 
@@ -92,14 +90,25 @@ class Game:
                 platform.draw(self.screen, self.camera)
 
             # Draw the enemy
-            for enemy in self.enemies:
-                enemy.draw(self.screen, self.camera)
+            if mode == "standard":
+                for enemy in self.enemies:
+                    enemy.update()
+                    if enemy.check_collision(self.player):
+                        self.player.bounce_effect.start(self.player)
 
-            # Draw lava
-            for lava in self.lava_pools:
-                if lava.check_collision(self.player):
-                    self.player.bounce_effect.start(self.player)
-                lava.draw(self.screen, self.camera)
+                    enemy.draw(self.screen, self.camera)
+
+                # Draw lava
+                for lava in self.lava_pools:
+                    if lava.check_collision(self.player):
+                        self.player.bounce_effect.start(self.player)
+                    lava.draw(self.screen, self.camera)
+
+                # Draw spikes and update
+                for spikes in self.spike_traps:
+                    spikes.draw(self.screen, self.camera)
+                    if spikes.check_collision(self.player):
+                        self.player.bounce_effect.start(self.player)
 
             # Draw coin and update coins
             for coin in self.coins:
@@ -116,11 +125,5 @@ class Game:
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)
             )  # White text
             self.screen.blit(coin_text, (600, 20))  # Position text at the top-right
-
-            # Draw spikes and update
-            for spikes in self.spike_traps:
-                spikes.draw(self.screen, self.camera)
-                if spikes.check_collision(self.player):
-                    self.player.bounce_effect.start(self.player)
 
             pygame.display.flip()

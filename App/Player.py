@@ -171,15 +171,57 @@ class Player(Entity):
 
     def check_platform_collision(self, platforms):
         self.on_ground = False
+
         for platform in platforms:
             if (
                 self.rect.colliderect(platform)
-                and self.velocity_y >= 0
                 and self.current_state != PlayerState.HIT
             ):
-                self.rect.bottom = platform.rect.top
-                self.velocity_y = 0
-                self.on_ground = True
+                # Special handling for the base platform (assume it's the first in the list)
+                if platform == platforms[0]:  # Base platform
+                    self.rect.bottom = platform.rect.top
+                    self.velocity_y = 0
+                    self.on_ground = True
+                    return  # No need to check further collisions
+
+                # Regular platforms
+                if (
+                    self.rect.colliderect(platform)
+                    and self.current_state != PlayerState.HIT
+                ):
+                    # Vertical collision: Landing on a platform from above
+                    if (
+                        self.velocity_y > 0
+                        and self.rect.bottom - self.velocity_y <= platform.rect.top
+                    ):
+                        self.rect.bottom = platform.rect.top
+                        self.velocity_y = 0
+                        self.on_ground = True
+
+                    # Hitting the platform from below
+                    elif (
+                        self.velocity_y < 0
+                        and self.rect.top - self.velocity_y >= platform.rect.bottom
+                    ):
+                        self.rect.top = platform.rect.bottom
+                        self.velocity_y = 0
+
+                    # Horizontal collision: Preventing traversal from the sides
+                    elif (
+                        self.velocity_y == 0
+                    ):  # Only check horizontal collision when not moving vertically
+                        # Moving right
+                        if (
+                            self.rect.right > platform.rect.left
+                            and self.rect.centerx < platform.rect.centerx
+                        ):
+                            self.rect.right = platform.rect.left
+                        # Moving left
+                        elif (
+                            self.rect.left < platform.rect.right
+                            and self.rect.centerx > platform.rect.centerx
+                        ):
+                            self.rect.left = platform.rect.right
 
     def draw(self, screen, camera):
         current_frame = self.animations[self.current_state][self.current_frame_index]
