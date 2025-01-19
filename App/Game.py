@@ -28,6 +28,7 @@ class Game:
             self.world_width,
             self.world_height,
         )
+
         self.platforms = [
             Platform(0, 550, 2000, 50),  # Ground platform
             # Platform(300, 400, 200, 20),
