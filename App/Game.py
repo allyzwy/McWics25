@@ -67,7 +67,7 @@ class Game:
 
             self.player.update_animation()
             self.player.apply_gravity()
-            self.player.check_collision(self.platforms)
+            self.player.check_platform_collision(self.platforms)
 
             # Update enemies
             for enemy in self.enemies:

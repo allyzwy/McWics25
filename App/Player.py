@@ -62,7 +62,7 @@ class Player(Entity):
 
         # Load animations
         self.animations = {
-            state: self.load_frames(paths, height)
+            state: self.load_frames(paths, height if state != PlayerState.HIT else 80)
             for state, paths in Player.animations.items()
         }
         self.current_state = PlayerState.STATIC  # Default state
@@ -87,11 +87,13 @@ class Player(Entity):
             list: List of loaded and scaled pygame surfaces.
         """
         frames = [pygame.image.load(path) for path in paths]
-        new_width = int(self.width * (new_height / self.height))
-        print(new_width, new_height)
-        return [
-            pygame.transform.scale(frame, (new_width, new_height)) for frame in frames
-        ]
+        res = []
+        for frame in frames:
+            og_width, og_height = frame.get_size()
+            new_width = int(og_width * (new_height / og_height))
+            res.append(pygame.transform.scale(frame, (new_width, new_height)))
+
+        return res
 
     def _set_state(self, state):
         """
@@ -167,7 +169,7 @@ class Player(Entity):
             self.velocity_y = 0
             self.on_ground = True
 
-    def check_collision(self, platforms):
+    def check_platform_collision(self, platforms):
         self.on_ground = False
         for platform in platforms:
             if (
