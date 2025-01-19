@@ -1,9 +1,14 @@
+import os
+import pygame
 from OnHitEffect import OnHitEffect
+
+ASSETS_PATH = os.path.join(".", "App", "assets")
+ON_HIT_IMAGE_PATH = os.path.join(ASSETS_PATH, "on_hit", "damage.PNG")
 
 
 class BounceLeft(OnHitEffect):
     """
-    On-hit effect that bounces the player in a parabolic trajectory.
+    On-hit effect that bounces the player in a parabolic trajectory and shows an image.
     """
 
     def __init__(self, bounce_distance=100, bounce_height=50, duration=1.0):
@@ -21,26 +26,37 @@ class BounceLeft(OnHitEffect):
         self.elapsed_time = 0  # Track progress over time
         self.active = False  # Indicates if the effect is active
 
-    def start(self, player):
+        # Load the on-hit image
+        self.on_hit_image = pygame.transform.scale(
+            pygame.image.load(ON_HIT_IMAGE_PATH), (60, 60)
+        )
+
+        self.animation_time = 10
+        self.current_animation_time = 0
+        self.animation_active = False
+
+    def start(self, player, screen):
         """
         Start the bounce effect.
 
         Args:
             player: The player object to apply the bounce to.
-            direction (int): Direction of the bounce (-1 for left, 1 for right).
         """
         self.active = True
         self.elapsed_time = 0
         self.player = player
         self.start_pos = player.rect.x, player.rect.y
-        self.direction = -1
+        self.direction = -1  # Direction of the bounce (left in this case)
 
-    def update(self, delta_time):
+        self.animation_active = True
+
+    def update(self, delta_time, screen):
         """
-        Update the bounce effect.
+        Update the bounce effect and display the on-hit image.
 
         Args:
             delta_time (float): Time elapsed since the last frame, in seconds.
+            screen (pygame.Surface): The surface to render the effect.
         """
         if not self.active:
             return
@@ -53,12 +69,28 @@ class BounceLeft(OnHitEffect):
             self.active = False
             return
 
-        # Parabolic trajectory
+        # Calculate parabolic trajectory
         horizontal_offset = self.direction * self.bounce_distance * t
         vertical_offset = -4 * self.bounce_height * (t - 0.5) ** 2 + self.bounce_height
 
+        # Update player's position
         self.player.rect.x = self.start_pos[0] + horizontal_offset
         self.player.rect.y = self.start_pos[1] - vertical_offset
+
+        if self.animation_active:
+            # Draw the on-hit image near the player
+            on_hit_pos = (
+                self.start_pos[0] - self.on_hit_image.get_width() // 2,
+                self.start_pos[1] - self.on_hit_image.get_height(),
+            )
+            print(f"screen {id(screen)}: show img {self.on_hit_image} on {on_hit_pos}")
+
+            screen.blit(self.on_hit_image, on_hit_pos)
+            self.current_animation_time += 1
+
+            if self.current_animation_time == self.animation_time:
+                self.animation_active = False
+                self.current_animation_time = 0
 
     def is_active(self):
         """
