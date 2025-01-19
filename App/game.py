@@ -5,6 +5,8 @@ from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, EnemyMovement
 from Lava import Lava
+from Coin import Coin
+
 
 
 class Game:
@@ -43,6 +45,13 @@ class Game:
         self.lava_pools = [
             Lava(820, 540, 120, 10),  # Example lava pool
         ]
+        self.coins = [
+            Coin(350, 500),
+            Coin(750, 450),
+            Coin(1300, 400),
+        ]
+        self.total_coins_collected = 0
+
 
     def start(self):
         running = True
@@ -85,6 +94,18 @@ class Game:
                         "Player fell into lava!"
                     )  # Replace with appropriate game mechanics
                 lava.draw(self.screen, self.camera)
+
+            # Draw coin and update coins
+            for coin in self.coins:
+                coin.draw(self.screen, self.camera)
+                if coin.check_collision(self.player):
+                    self.total_coins_collected += 1  # Update the total coin count
+                    print(f"Coins collected: {self.total_coins_collected}")  # Optional for debugging
+
+            # Display total coins
+            font = pygame.font.SysFont(None, 30)
+            coin_text = font.render(f"Sam's coins: {self.total_coins_collected}", True, (0, 0, 0))  # White text
+            self.screen.blit(coin_text, (600, 20))  # Position text at the top-right
 
             pygame.display.flip()
             self.clock.tick(60)
