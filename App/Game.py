@@ -46,6 +46,9 @@ class Game:
             Platform(2550, 325, 50, 50),
             Platform(2600, 325, 50, 50),
             Platform(2800, 255, 50, 50),
+            Platform(3000, 300, 50, 200),
+            Platform(3250, 350, 50, 150),
+            Platform(3500, 400, 50, 100),
         ]
         self.enemies = [
             Enemy(
@@ -57,8 +60,26 @@ class Game:
                 50,
                 50,
                 EnemyMovement.HORIZONTAL,
-                speed=5,
-                bounds=(2000, 2400),
+                speed=7,
+                bounds=(2000, 2700),
+            ),
+            Enemy(
+                3050,
+                450,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=4,
+                bounds=(3050, 3250),
+            ),
+            Enemy(
+                3300,
+                450,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=6,
+                bounds=(3300, 3500),
             ),
         ]
         self.lava_pools = [
@@ -67,6 +88,9 @@ class Game:
         self.coins = [
             Coin(650, 500),
             Coin(1100, 200),
+            Coin(2800, 200),
+            Coin(3125, 170),
+            Coin(3375, 230),
         ]
 
         self.total_coins_collected = 0
@@ -75,6 +99,7 @@ class Game:
             Spikes(1050, 530, 50, 20, 4),
             Spikes(1350, 530, 150, 20, 10),
             Spikes(2550, 305, 30, 20, 3),
+            Spikes(3620, 480, 100, 20, 5),
         ]
 
         # Font and text for how to play
