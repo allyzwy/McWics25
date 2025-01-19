@@ -1,5 +1,6 @@
-from os import walk
 import pygame
+import os
+from config import ASSETS_PATH
 from Lava import Lava
 from Spikes import Spikes
 from Player import Player
@@ -162,19 +163,29 @@ class Game:
         self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
 
         # Load background music
-        pygame.mixer.music.load("App/Sounds/Cute_Circus.mp3")
+        pygame.mixer.music.load(os.path.join(ASSETS_PATH, "sound", "Cute_Circus.mp3"))
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1, 0.0)  # Play music indefinitely
 
         # Load sound effects for collision events
-        self.lava_sound = pygame.mixer.Sound("App/Sounds/windows_startup.mp3")
-        self.enemy_sound = pygame.mixer.Sound("App/Sounds/enemy_collide.mp3")
-        self.spike_sound = pygame.mixer.Sound("App/Sounds/spikes_collide.mp3")
-        self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
+        self.lava_sound = pygame.mixer.Sound(
+            os.path.join(ASSETS_PATH, "sound", "windows_startup.ogg")
+        )
+        self.enemy_sound = pygame.mixer.Sound(
+            os.path.join(ASSETS_PATH, "sound", "enemy_collide.ogg")
+        )
+        self.spike_sound = pygame.mixer.Sound(
+            os.path.join(ASSETS_PATH, "sound", "spikes_collide.ogg")
+        )
+        self.coin_sound = pygame.mixer.Sound(
+            os.path.join(ASSETS_PATH, "sound", "coin.ogg")
+        )
         self.resume_music = False  # Flag to track music resumption
 
         # Load flag
-        self.flag = Flag(5400, 150, 70, 350, "App/assets/ending/samu_flag.png")
+        self.flag = Flag(
+            5400, 150, 70, 350, os.path.join(ASSETS_PATH, "ending/samu_flag.png")
+        )
 
     def _end_game_sequence(self):
         """

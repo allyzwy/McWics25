@@ -2,7 +2,7 @@ from Entity import Entity
 import os
 import pygame
 
-ASSETS_PATH = os.path.join(".", "App", "assets")
+from config import ASSETS_PATH
 
 COIN_IMAGE_PATH = os.path.join(ASSETS_PATH, "coin", "coin.PNG")
 

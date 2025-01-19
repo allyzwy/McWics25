@@ -1,10 +1,9 @@
 import pygame
+from config import ASSETS_PATH
 from Entity import Entity
 import os
 from enum import Enum
 
-
-ASSETS_PATH = os.path.join(".", "App", "assets")
 
 MOVEMENT_FRAME_PATHS = [
     os.path.join(ASSETS_PATH, "enemy", f"{i}.PNG") for i in range(1, 3)

@@ -4,7 +4,7 @@ from Entity import Entity
 from enum import Enum
 import os
 
-ASSETS_PATH = os.path.join(".", "App", "assets")
+from config import ASSETS_PATH
 
 STATIC_FRAME = os.path.join(ASSETS_PATH, "player", "static.PNG")
 JUMP_FRAMES = [

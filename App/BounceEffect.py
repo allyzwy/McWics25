@@ -3,8 +3,8 @@ import pygame
 from Entity import Entity
 from Camera import Camera
 from OnHitEffect import OnHitEffect
+from config import ASSETS_PATH
 
-ASSETS_PATH = os.path.join(".", "App", "assets")
 ON_HIT_IMAGE_PATH = os.path.join(ASSETS_PATH, "on_hit", "damage.PNG")
 
 
