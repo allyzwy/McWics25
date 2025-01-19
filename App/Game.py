@@ -35,7 +35,7 @@ class Game:
             Platform(0, 550, 2000, 50),  # Ground platform
             # Platform(300, 400, 200, 20),
             Platform(500, 500, 40, 150),
-            Platform(600, 300, 200, 20),
+            Platform(600, 400, 200, 50),
             Platform(1200, 450, 300, 20),
         ]
         self.enemies = [

@@ -14,7 +14,7 @@ WALK_FRAMES = [
     os.path.join(ASSETS_PATH, "player", "walk", f"{i}.PNG") for i in range(1, 6)
 ]
 HIT_FRAMES = [
-    os.path.join(ASSETS_PATH, "player", "hit", f"{i}.PNG") for i in range(1, 7)
+    os.path.join(ASSETS_PATH, "player", "hit", f"{i}.PNG") for i in range(1, 8)
 ]
 
 
@@ -31,7 +31,6 @@ class PlayerDirection(Enum):
 
 
 class Player(Entity):
-    # Dictionary of animation states to image paths.
     animations = {
         PlayerState.STATIC: [STATIC_FRAME],
         PlayerState.JUMP: JUMP_FRAMES,
@@ -42,14 +41,6 @@ class Player(Entity):
     def __init__(self, x, y, width, height, world_width, world_height):
         """
         Initialize the player object.
-
-        Args:
-            x (int): Initial x-coordinate of the player.
-            y (int): Initial y-coordinate of the player.
-            width (int): Width of the player.
-            height (int): Height of the player.
-            world_width (int): Total width of the game world.
-            world_height (int): Total height of the game world.
         """
         self.rect = pygame.Rect(x, y, width, height)
         self.velocity_y = 0
@@ -61,32 +52,20 @@ class Player(Entity):
         self.width = width
         self.height = height
 
-        # Preload and scale all animations
+        # Preload and scale animations
         self.animations = {
             state: self.load_frames(paths, (80 if state == PlayerState.HIT else height))
             for state, paths in Player.animations.items()
         }
-        self.current_state = PlayerState.STATIC  # Default state
+        self.current_state = PlayerState.STATIC
         self.current_frame_index = 0
         self.frame_timer = 0
-        self.frame_delay = 5  # How many 'ticks' before advancing animation frame
+        self.frame_delay = 5
 
-        self.direction = PlayerDirection.RIGHT  # Default direction
-
-        # Example bounce effect (knockback or special effect)
-        self.bounce_effect = BounceLeft(500, 200)
+        self.direction = PlayerDirection.RIGHT
+        self.bounce_effect = BounceLeft(500, 200)  # Example effect
 
     def load_frames(self, paths, new_height):
-        """
-        Load and scale animation frames so heights match 'new_height' and widths scale proportionally.
-
-        Args:
-            paths (list of str): List of file paths for each animation frame.
-            new_height (int): Desired new height of the frame.
-
-        Returns:
-            list of pygame.Surface: List of loaded/scaled images.
-        """
         frames = [pygame.image.load(path) for path in paths]
         scaled = []
         for frame in frames:
@@ -97,20 +76,11 @@ class Player(Entity):
         return scaled
 
     def _set_state(self, state):
-        """
-        Set the player's animation state, resetting frame index if the state changes.
-
-        Args:
-            state (PlayerState): The new animation state.
-        """
         if state != self.current_state:
             self.current_state = state
-            self.current_frame_index = 0  # Always reset to first frame on state change
+            self.current_frame_index = 0  # Reset frame
 
     def update_animation(self):
-        """
-        Advances the current animation frame at a fixed rate (frame_delay).
-        """
         self.frame_timer += 0.5
         if self.frame_timer >= self.frame_delay:
             self.frame_timer = 0
@@ -120,27 +90,24 @@ class Player(Entity):
 
     def update(self, delta_time, platforms):
         """
-        Update the player's movement, collisions, and animation each frame.
-
-        Args:
-            delta_time (float): Time elapsed since the last frame (not used extensively here).
-            platforms (list): A list of platform objects that have 'rect' attributes.
+        Update player's movement, collisions (horizontal and vertical),
+        and animation in a single method to avoid sinking or passing through.
         """
-        # If there is an active bounce/knockback effect, apply that logic:
         if self.bounce_effect.is_active():
+            # Bounce/knockback logic
             self.bounce_effect.update(delta_time)
             self._set_state(PlayerState.HIT)
-            # Direction forced to right for demonstration, could also offset x here
             self.direction = PlayerDirection.RIGHT
-
-            # If you want bounce to actually push the player, you could do something like:
-            # knockback_x = self.bounce_effect.get_knockback_x()  # example method
-            # self.rect.x += knockback_x
-            # (Then handle collisions in X, etc.)
+            # If you want to apply knockback, do so before collision checks:
+            #   knockback_x = some function of bounce_effect...
+            #   self.rect.x += knockback_x
+            #   (Then do collisions as normal.)
         else:
-            # -- 1) Handle input to determine horizontal movement --
-            keys = pygame.key.get_pressed()
+            # ---------------------------
+            # 1) Handle Horizontal Input
+            # ---------------------------
             dx = 0
+            keys = pygame.key.get_pressed()
 
             if keys[pygame.K_LEFT]:
                 dx = -5
@@ -149,44 +116,61 @@ class Player(Entity):
                 dx = 5
                 self.direction = PlayerDirection.RIGHT
 
-            # Move horizontally first
+            # Move horizontally
             self.rect.x += dx
 
-            # Check horizontal boundary collisions with world edges
+            # World boundary check (horizontal)
             if self.rect.left < 0:
                 self.rect.left = 0
             elif self.rect.right > self.world_width:
                 self.rect.right = self.world_width
 
-            # Now handle jumping:
-            if keys[pygame.K_SPACE] and self.on_ground:
-                self.velocity_y = -15  # Jump velocity
+            # -------------------------------
+            # 2) Check Horizontal Collisions
+            # -------------------------------
+            for platform in platforms:
+                if self.rect.colliderect(platform.rect):
+                    # If moving right, push out on left side
+                    if dx > 0:
+                        self.rect.right = platform.rect.left
+                    # If moving left, push out on right side
+                    elif dx < 0:
+                        self.rect.left = platform.rect.right
 
-            # -- 2) Apply gravity and move vertically --
+            # --------------------
+            # 3) Vertical Movement
+            # --------------------
+            if keys[pygame.K_SPACE] and self.on_ground:
+                self.velocity_y = -15
+
             self.velocity_y += self.gravity
             self.rect.y += self.velocity_y
 
-            # -- 3) Check collisions in the vertical direction --
+            # -------------------------------
+            # 4) Check Vertical Collisions
+            # -------------------------------
             self.on_ground = False
             for platform in platforms:
                 if self.rect.colliderect(platform.rect):
-                    # Check if we are falling onto the platform
+                    # Falling down onto the platform
                     if self.velocity_y > 0:
                         self.rect.bottom = platform.rect.top
                         self.velocity_y = 0
                         self.on_ground = True
-                    # If we jumped into the underside of the platform
+                    # Jumping up into the underside
                     elif self.velocity_y < 0:
                         self.rect.top = platform.rect.bottom
                         self.velocity_y = 0
 
-            # Ensure we don't go below the world "floor"
+            # World boundary (floor)
             if self.rect.bottom > self.world_height:
                 self.rect.bottom = self.world_height
                 self.velocity_y = 0
                 self.on_ground = True
 
-            # -- 4) Set the correct animation state --
+            # --------------------
+            # 5) Update State
+            # --------------------
             if not self.on_ground:
                 self._set_state(PlayerState.JUMP)
             elif dx != 0:
@@ -194,22 +178,15 @@ class Player(Entity):
             else:
                 self._set_state(PlayerState.STATIC)
 
-        # Update the player's animation (frame updates)
+        # --------------------
+        # 6) Animation
+        # --------------------
         self.update_animation()
 
     def draw(self, screen, camera):
-        """
-        Draw the player's current animation frame onto the screen.
-        Flips the sprite horizontally if direction is LEFT.
-
-        Args:
-            screen (pygame.Surface): The main screen to draw onto.
-            camera: A camera system that has an `apply(entity)` method which
-                    returns the correct coordinates of the entity relative to the view.
-        """
         current_frame = self.animations[self.current_state][self.current_frame_index]
 
-        # Flip horizontally if facing LEFT
+        # Flip if facing LEFT
         if self.direction == PlayerDirection.LEFT:
             current_frame = pygame.transform.flip(current_frame, True, False)
 
