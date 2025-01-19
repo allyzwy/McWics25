@@ -11,6 +11,8 @@ from Coin import Coin
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
+
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
 
@@ -75,6 +77,18 @@ class Game:
         ]
         self.text_rect = pygame.Rect(40, 50, 0, 0)  # Position in world coordinates
 
+        # Load background music
+        pygame.mixer.music.load("App/Sounds/Cute_Circus.mp3")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, 0.0)  # Play music indefinitely
+
+        # Load sound effects for collision events
+        self.lava_sound = pygame.mixer.Sound("App/Sounds/windows_startup.mp3")
+        self.enemy_sound = pygame.mixer.Sound("App/Sounds/enemy_collide.mp3")
+        self.spike_sound = pygame.mixer.Sound("App/Sounds/spikes_collide.mp3")
+        self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
+        self.resume_music = False  # Flag to track music resumption
+
     def draw_world_text(self, screen, camera):
         """
         Draw text at a specific location in the game world.
@@ -137,23 +151,50 @@ class Game:
                 for enemy in self.enemies:
                     enemy.update()
                     if enemy.check_collision(self.player):
+                        self.enemy_sound.play()
                         self.player.bounce_effect.start(self.player, self.screen)
 
                     enemy.draw(self.screen, self.camera)
+
+                # Draw lava
+                for lava in self.lava_pools:
+                    self.player.bounce_effect.start(self.player, self.screen)
 
                 for lava in self.lava_pools:
                     if lava.check_collision(self.player):
                         self.player.bounce_effect.start(self.player, self.screen)
                     lava.draw(self.screen, self.camera)
+                    if lava.check_collision(self.player):
+                        if (
+                            not self.lava_sound.get_num_channels()
+                        ):  # Play sound only if not already playing
+                            pygame.mixer.music.pause()  # Pause the background music
+                            self.lava_sound.play()
+                            self.resume_music = True  # Set flag to resume music
+                        self.player.bounce_effect.start(self.player, self.screen)
+
+                # Check if the music should resume
+                if (
+                    self.resume_music and not pygame.mixer.get_busy()
+                ):  # Resume when no sound is playing
+                    pygame.mixer.music.unpause()
+                    self.resume_music = False  # Reset the flag
 
                 for spikes in self.spike_traps:
                     spikes.draw(self.screen, self.camera)
                     if spikes.check_collision(self.player):
+                        self.spike_sound.play()
+                        self.player.bounce_effect.start(self.player, self.screen)
                         self.player.bounce_effect.start(self.player, self.screen)
 
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
+                    self.coin_sound.play()
+                    self.total_coins_collected += 1  # Update the total coin count
+                    print(
+                        f"Coins collected: {self.total_coins_collected}"
+                    )  # Optional for debugging
                     self.total_coins_collected += 1
 
             font = pygame.font.SysFont("Comic Sans MS", 18)
