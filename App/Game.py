@@ -22,7 +22,7 @@ class Game:
         self.camera = Camera(800, 600, self.world_width, self.world_height)
 
         self.player = Player(
-            100,
+            1800,
             800,
             50,
             110,
@@ -41,14 +41,27 @@ class Game:
             Platform(1300, 500, 50, 50),
             Platform(1500, 500, 50, 50),
             Platform(2000, 500, 5000, 100),  # Ground platform
+            Platform(2300, 375, 50, 50),
+            Platform(2300, 375, 50, 50),
+            Platform(2350, 375, 50, 50),
+            Platform(2400, 375, 50, 50),
+            Platform(2550, 325, 50, 50),
+            Platform(2600, 325, 50, 50),
+            Platform(2800, 255, 50, 50),
         ]
         self.enemies = [
             Enemy(
                 400, 500, 50, 50, EnemyMovement.HORIZONTAL, speed=2, bounds=(300, 600)
             ),
-            # Enemy(
-            #     1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
-            # ),
+            Enemy(
+                2000,
+                450,
+                50,
+                50,
+                EnemyMovement.HORIZONTAL,
+                speed=4,
+                bounds=(2000, 2500),
+            ),
         ]
         self.lava_pools = [
             Lava(1900, 575, 100, 25),
@@ -63,6 +76,7 @@ class Game:
         self.spike_traps = [
             Spikes(1050, 530, 50, 20, 4),
             Spikes(1350, 530, 150, 20, 10),
+            Spikes(2550, 305, 30, 20, 3),
         ]
 
         # Font and text for how to play

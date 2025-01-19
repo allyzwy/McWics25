@@ -1,2 +1,6 @@
+from abc import abstractmethod
+
+
 class OnHitEffect:
-    def apply(self, player): ...
+    @abstractmethod
+    def start(self, player): ...
