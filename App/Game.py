@@ -107,6 +107,49 @@ class Game:
         # Load flag
         self.flag = Flag(4000, 150, 70, 350, "App/assets/ending/samu_flag.png")
 
+    def _end_game_sequence(self):
+        """
+        Gradually dims the screen to black and displays "FIN!"
+        and the number of coins collected out of the total.
+        """
+        fade_surface = pygame.Surface(self.screen.get_size())
+        fade_surface.fill((0, 0, 0))
+
+        # We'll do a simple fade up to alpha=255
+        for alpha in range(0, 256, 5):
+            # Re-draw the last frame (so the current scene is visible under the fade)
+            self.screen.blit(self.screen, (0, 0))
+
+            # Set the alpha (opacity) of the fade overlay
+            fade_surface.set_alpha(alpha)
+            self.screen.blit(fade_surface, (0, 0))
+
+            pygame.display.flip()
+            self.clock.tick(60)
+
+        # Once fully faded, show final text
+        self.screen.fill((0, 0, 0))
+
+        # Display the "FIN!" text
+        font = pygame.font.SysFont("Comic Sans MS", 48)
+        fin_text = font.render("FIN!", True, (255, 255, 255))
+        fin_rect = fin_text.get_rect(center=(self.screen.get_width() // 2, 200))
+        self.screen.blit(fin_text, fin_rect)
+
+        # Display the coin summary
+        coin_summary_text = font.render(
+            f"Coins: {self.total_coins_collected}/{len(self.coins)}",
+            True,
+            (255, 255, 255),
+        )
+        coin_summary_rect = coin_summary_text.get_rect(
+            center=(self.screen.get_width() // 2, 300)
+        )
+        self.screen.blit(coin_summary_text, coin_summary_rect)
+
+        pygame.display.flip()
+
+        pygame.time.wait(30000)  # 3-second pause
 
     def draw_world_text(self, screen, camera):
         """
@@ -203,9 +246,9 @@ class Game:
             )  # White text
             self.screen.blit(coin_text, (630, 20))  # Position text at the top-right
 
-
             # Draw the flag
             self.flag.draw(self.screen, self.camera)
+
             # Check collision with the flag
             if self.player.rect.colliderect(self.flag.rect):
                 print("Congratulations! You've reached the end!")
