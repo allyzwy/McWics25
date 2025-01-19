@@ -7,6 +7,7 @@ from Camera import Camera
 from Platform import Platform
 from Enemy import Enemy, EnemyMovement
 from Coin import Coin
+from Flag import Flag
 
 
 class Game:
@@ -157,18 +158,8 @@ class Game:
         self.coin_sound = pygame.mixer.Sound("App/Sounds/coin.mp3")
         self.resume_music = False  # Flag to track music resumption
 
-        # Load and resize the flag
-        self.flag_image = pygame.image.load(
-            "App/assets/ending/samu_flag.png"
-        ).convert_alpha()
-        self.flag_image = pygame.transform.scale(
-            self.flag_image, (70, 350)
-        )  # Resize flag (width, height)
-        self.flag_rect = self.flag_image.get_rect()
-        self.flag_rect.topleft = (
-            4000,
-            150,
-        )  # Place flag closer to the player and ground
+        # Load flag
+        self.flag = Flag(4000, 150, 70, 350, "App/assets/ending/samu_flag.png")
 
     def _end_game_sequence(self):
         """
@@ -311,11 +302,11 @@ class Game:
             self.screen.blit(coin_text, (630, 20))  # Position text at the top-right
 
             # Draw the flag
-            self.screen.blit(self.flag_image, self.camera.apply(self.flag_rect))
+            self.flag.draw(self.screen, self.camera)
 
             # Check collision with the flag
-            if self.player.rect.colliderect(self.flag_rect):
+            if self.player.rect.colliderect(self.flag.rect):
                 self._end_game_sequence()
-                running = False  # End the game (optional)
+                running = False
 
             pygame.display.flip()
