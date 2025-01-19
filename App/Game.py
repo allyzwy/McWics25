@@ -22,7 +22,7 @@ class Game:
         self.camera = Camera(800, 600, self.world_width, self.world_height)
 
         self.player = Player(
-            3900,
+            100,
             800,
             50,
             110,
@@ -61,6 +61,11 @@ class Game:
             Platform(4350, 450, 50, 50),
             Platform(4400, 450, 50, 50),
             Platform(4450, 450, 50, 50),
+            Platform(4675, 450, 50, 50),
+            Platform(4775, 400, 50, 100),
+            Platform(4875, 350, 50, 150),
+            Platform(4975, 300, 50, 200),
+            Platform(5075, 250, 50, 250),
         ]
         self.enemies = [
             Enemy(
@@ -114,6 +119,7 @@ class Game:
         ]
         self.lava_pools = [
             Lava(1900, 575, 100, 25),
+            Lava(4500, 485, 175, 15),
         ]
         self.coins = [
             Coin(650, 500),
@@ -121,6 +127,11 @@ class Game:
             Coin(2800, 200),
             Coin(3125, 170),
             Coin(3375, 230),
+            Coin(4675, 400),
+            Coin(4775, 350),
+            Coin(4875, 300),
+            Coin(4975, 250),
+            Coin(5075, 200),
         ]
 
         self.total_coins_collected = 0
@@ -130,6 +141,10 @@ class Game:
             Spikes(1350, 530, 150, 20, 10),
             Spikes(2550, 305, 30, 20, 3),
             Spikes(3620, 480, 100, 20, 5),
+            Spikes(4725, 480, 50, 20, 3),
+            Spikes(4825, 480, 50, 20, 3),
+            Spikes(4925, 480, 50, 20, 3),
+            Spikes(5025, 480, 50, 20, 3),
         ]
 
         # Font and text for how to play
@@ -159,7 +174,7 @@ class Game:
         self.resume_music = False  # Flag to track music resumption
 
         # Load flag
-        self.flag = Flag(6000, 150, 70, 350, "App/assets/ending/samu_flag.png")
+        self.flag = Flag(5400, 150, 70, 350, "App/assets/ending/samu_flag.png")
 
     def _end_game_sequence(self):
         """
@@ -203,7 +218,7 @@ class Game:
 
         pygame.display.flip()
 
-        pygame.time.wait(30000)  # 3-second pause
+        pygame.time.wait(10000)
 
     def draw_world_text(self, screen, camera):
         """
