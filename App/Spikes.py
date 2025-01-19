@@ -1,4 +1,5 @@
 from Entity import Entity
+from enum import Enum
 import pygame
 from enum import Enum
 
@@ -32,6 +33,8 @@ class Spikes(Entity):
         """
         super().__init__(x, y, width, height)
         self.num_triangles = num_triangles
+        # self.mode = 
+        # self.direction = 
 
     def draw(self, screen, camera):
         """
