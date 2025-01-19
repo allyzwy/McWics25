@@ -94,7 +94,7 @@ class Player(Entity):
                 self.animations[self.current_state]
             )
 
-    def update(self, delta_time, platforms):
+    def update(self, delta_time, platforms, screen):
         """
         Update player's movement, collisions, and animation in a single method.
         This handles normal input as well as bounce/knockback arcs.
@@ -103,7 +103,7 @@ class Player(Entity):
         # 1) Check Bounce Effect
         # --------------------
         if self.bounce_effect.is_active():
-            self.bounce_effect.update(delta_time)
+            self.bounce_effect.update(delta_time, screen)
             self._set_state(PlayerState.HIT)
             if not self.bounce_effect.is_active():
                 self._set_state(PlayerState.STATIC)

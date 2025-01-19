@@ -112,8 +112,11 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
 
+            # Drawing
+            self.screen.fill((255, 255, 255))  # Sky blue
+
             # Update game objects
-            self.player.update(delta_time, self.platforms)
+            self.player.update(delta_time, self.platforms, self.screen)
 
             self.player.update_animation()
             # self.player.apply_gravity(self.platforms)
@@ -121,9 +124,6 @@ class Game:
 
             # Update the camera
             self.camera.update(self.player)
-
-            # Drawing
-            self.screen.fill((255, 255, 255))  # Sky blue
 
             # Draw world-positioned text
             self.draw_world_text(self.screen, self.camera)
@@ -133,37 +133,29 @@ class Game:
             for platform in self.platforms:
                 platform.draw(self.screen, self.camera)
 
-            # Draw the enemy
             if mode == "standard":
                 for enemy in self.enemies:
                     enemy.update()
                     if enemy.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player)
+                        self.player.bounce_effect.start(self.player, self.screen)
 
                     enemy.draw(self.screen, self.camera)
 
-                # Draw lava
                 for lava in self.lava_pools:
                     if lava.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player)
+                        self.player.bounce_effect.start(self.player, self.screen)
                     lava.draw(self.screen, self.camera)
 
-                # Draw spikes and update
                 for spikes in self.spike_traps:
                     spikes.draw(self.screen, self.camera)
                     if spikes.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player)
+                        self.player.bounce_effect.start(self.player, self.screen)
 
-            # Draw coin and update coins
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)
                 if coin.check_collision(self.player):
-                    self.total_coins_collected += 1  # Update the total coin count
-                    print(
-                        f"Coins collected: {self.total_coins_collected}"
-                    )  # Optional for debugging
+                    self.total_coins_collected += 1
 
-            # Display total coins
             font = pygame.font.SysFont("Comic Sans MS", 18)
             coin_text = font.render(
                 f"Samu's coins: {self.total_coins_collected}", True, (0, 0, 0)

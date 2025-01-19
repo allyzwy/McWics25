@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Path to the directory or file to monitor
+WATCH_PATH="App"
+
+# The command to run
+RUN_COMMAND="just start"
+
+# Start an initial command
+$RUN_COMMAND &
+COMMAND_PID=$!
+
+# Monitor the directory for changes
+fswatch -r "$WATCH_PATH" | while read file; do
+    echo "Change detected: $file"
+    
+    # Kill the running command
+    kill $COMMAND_PID 2>/dev/null
+
+    # Restart the command
+    $RUN_COMMAND &
+    COMMAND_PID=$!
+done
