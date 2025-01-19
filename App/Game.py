@@ -50,7 +50,9 @@ class Game:
             #     1000, 450, 50, 50, EnemyMovement.VERTICAL, speed=2, bounds=(400, 500)
             # ),
         ]
-        self.lava_pools = [Lava(1900, 575, 100, 25)]
+        self.lava_pools = [
+            Lava(1900, 575, 100, 25),
+        ]
         self.coins = [
             Coin(650, 500),
             Coin(1100, 200),
@@ -126,20 +128,14 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
 
-            # Drawing
-            self.screen.fill((255, 255, 255))  # Sky blue
+            self.screen.fill((255, 255, 255))
 
-            # Update game objects
-            self.player.update(delta_time, self.platforms, self.screen)
+            self.player.update(delta_time, self.platforms, self.screen, self.camera)
 
             self.player.update_animation()
-            # self.player.apply_gravity(self.platforms)
-            # self.player.check_platform_collision(self.platforms)
 
-            # Update the camera
             self.camera.update(self.player)
 
-            # Draw world-positioned text
             self.draw_world_text(self.screen, self.camera)
 
             self.player.draw(self.screen, self.camera)
@@ -147,45 +143,38 @@ class Game:
             for platform in self.platforms:
                 platform.draw(self.screen, self.camera)
 
-            if mode == "standard":
-                for enemy in self.enemies:
-                    enemy.update()
-                    if enemy.check_collision(self.player):
-                        self.enemy_sound.play()
-                        self.player.bounce_effect.start(self.player, self.screen)
+            for enemy in self.enemies:
+                enemy.update()
+                if enemy.check_collision(self.player):
+                    self.enemy_sound.play()
+                    self.player.bounce_effect.start(self.player)
 
-                    enemy.draw(self.screen, self.camera)
+                enemy.draw(self.screen, self.camera)
 
-                # Draw lava
-                for lava in self.lava_pools:
-                    self.player.bounce_effect.start(self.player, self.screen)
+            for lava in self.lava_pools:
+                lava.draw(self.screen, self.camera)
+                if lava.check_collision(self.player):
+                    self.player.bounce_effect.start(
+                        self.player,
+                    )
+                    if (
+                        not self.lava_sound.get_num_channels()
+                    ):  # Play sound only if not already playing
+                        pygame.mixer.music.pause()  # Pause the background music
+                        self.lava_sound.play()
+                        self.resume_music = True  # Set flag to resume music
 
-                for lava in self.lava_pools:
-                    if lava.check_collision(self.player):
-                        self.player.bounce_effect.start(self.player, self.screen)
-                    lava.draw(self.screen, self.camera)
-                    if lava.check_collision(self.player):
-                        if (
-                            not self.lava_sound.get_num_channels()
-                        ):  # Play sound only if not already playing
-                            pygame.mixer.music.pause()  # Pause the background music
-                            self.lava_sound.play()
-                            self.resume_music = True  # Set flag to resume music
-                        self.player.bounce_effect.start(self.player, self.screen)
+            if self.resume_music and not pygame.mixer.get_busy():
+                pygame.mixer.music.unpause()
+                self.resume_music = False
 
-                # Check if the music should resume
-                if (
-                    self.resume_music and not pygame.mixer.get_busy()
-                ):  # Resume when no sound is playing
-                    pygame.mixer.music.unpause()
-                    self.resume_music = False  # Reset the flag
-
-                for spikes in self.spike_traps:
-                    spikes.draw(self.screen, self.camera)
-                    if spikes.check_collision(self.player):
-                        self.spike_sound.play()
-                        self.player.bounce_effect.start(self.player, self.screen)
-                        self.player.bounce_effect.start(self.player, self.screen)
+            for spikes in self.spike_traps:
+                spikes.draw(self.screen, self.camera)
+                if spikes.check_collision(self.player):
+                    self.spike_sound.play()
+                    self.player.bounce_effect.start(
+                        self.player,
+                    )
 
             for coin in self.coins:
                 coin.draw(self.screen, self.camera)

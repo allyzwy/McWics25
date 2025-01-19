@@ -1,5 +1,7 @@
 import os
 import pygame
+from Entity import Entity
+from Camera import Camera
 from OnHitEffect import OnHitEffect
 
 ASSETS_PATH = os.path.join(".", "App", "assets")
@@ -35,7 +37,7 @@ class BounceLeft(OnHitEffect):
         self.current_animation_time = 0
         self.animation_active = False
 
-    def start(self, player, screen):
+    def start(self, player):
         """
         Start the bounce effect.
 
@@ -50,7 +52,7 @@ class BounceLeft(OnHitEffect):
 
         self.animation_active = True
 
-    def update(self, delta_time, screen):
+    def update(self, delta_time, screen, camera: Camera):
         """
         Update the bounce effect and display the on-hit image.
 
@@ -78,14 +80,23 @@ class BounceLeft(OnHitEffect):
         self.player.rect.y = self.start_pos[1] - vertical_offset
 
         if self.animation_active:
-            # Draw the on-hit image near the player
             on_hit_pos = (
                 self.start_pos[0] - self.on_hit_image.get_width() // 2,
                 self.start_pos[1] - self.on_hit_image.get_height(),
             )
-            print(f"screen {id(screen)}: show img {self.on_hit_image} on {on_hit_pos}")
 
-            screen.blit(self.on_hit_image, on_hit_pos)
+            on_hit_rect = Entity(
+                on_hit_pos[0],
+                on_hit_pos[1],
+                self.on_hit_image.get_width(),
+                self.on_hit_image.get_height(),
+            )
+
+            on_hit_screen_rect = camera.apply(on_hit_rect)
+
+            screen.blit(self.on_hit_image, (on_hit_screen_rect.x, on_hit_screen_rect.y))
+
+            self.current_animation_time += 1
             self.current_animation_time += 1
 
             if self.current_animation_time == self.animation_time:
